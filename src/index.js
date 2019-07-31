@@ -29,6 +29,7 @@ import sortKeys from "sort-keys"
  * @prop {string} databaseUser
  * @prop {string} databaseHost
  * @prop {number} databasePort
+ * @prop {"alter"|"sync"|"force"|false} databaseSchemaSync
  * @prop {string} timezone
  * @prop {number} insecurePort
  * @prop {number} securePort
@@ -97,6 +98,7 @@ export default class {
         databaseUser: "postgres",
         databaseHost: "localhost",
         databasePort: 5432,
+        databaseSchemaSync: "alter",
         timezone: "Europe/Berlin",
       })
       options.configSetup.sensitiveKeys.push("databasePassword")
@@ -129,6 +131,9 @@ export default class {
     this.config = configResult.config
     if (hasDatabase) {
       const Sequelize = require("sequelize")
+      /**
+       * @type {import("sequelize").Sequelize}
+       */
       this.database = new Sequelize({
         dialect: "postgres",
         host: this.config.databaseHost,
@@ -190,11 +195,27 @@ export default class {
   }
 
   async init() {
-    if (this.insecureServer !== undefined) {
+    if (this.database) {
+      await database.authenticate()
+      if (config.databaseSchemaSync === "sync") {
+        await database.sync()
+      }
+      if (config.databaseSchemaSync === "force") {
+        await database.sync({
+          force: true,
+        })
+      }
+      if (config.databaseSchemaSync === "alter") {
+        await database.sync({
+          alter: true,
+        })
+      }
+    }
+    if (this.insecureServer) {
       this.insecureServer.listen(this.config.insecurePort)
       this.logger.info("Started insecure server on port %s", this.config.insecurePort)
     }
-    if (this.secureServer !== undefined) {
+    if (this.secureServer) {
       this.secureServer.listen(this.config.securePort)
       this.logger.info("Started secure server on port %s", this.config.securePort)
     }
