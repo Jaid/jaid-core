@@ -277,7 +277,7 @@ export default class {
         }
       }
       if (this.hasDatabase) {
-        this.hooks.addModels.call(this.registerModel)
+        this.hooks.addModels.call(this.registerModel.bind(this))
         const models = Object.values(this.database.models)
         if (models.length === 0) {
           this.logger.warn("No models have been registered")
