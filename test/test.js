@@ -1,6 +1,7 @@
 import path from "path"
 
 import got from "got"
+import ms from "ms.macro"
 
 const indexModule = (process.env.MAIN ? path.resolve(process.env.MAIN) : path.join(__dirname, "..", "src")) |> require
 
@@ -27,4 +28,5 @@ it("should run", async () => {
   expect(response.statusMessage).toBe("OK")
   expect(response.headers["x-response-time"]).toBeTruthy()
   expect(response.body).toBe("hi")
-})
+  await core.close()
+}, ms`5 seconds`)

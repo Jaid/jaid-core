@@ -12,9 +12,12 @@
     "jaid-logger": "^1.4.2",
     "koa": "^2.7.0",
     "lodash": "^4.17.15",
-    "sequelize": "^5.12.1",
+    "pify": "^4.0.1",
     "sort-keys": "^3.0.0",
     "tapable": "^1.1.3"
+  },
+  "peerDependencies": {
+    "sequelize": "^5.12.1"
   },
   "devDependencies": {
     "acorn": "^6.2.1",

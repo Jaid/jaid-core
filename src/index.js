@@ -8,6 +8,7 @@ import {isString} from "lodash"
 import ensureArray from "ensure-array"
 import sortKeys from "sort-keys"
 import {SyncHook} from "tapable"
+import pify from "pify"
 
 /**
  * @typedef {Object} Options
@@ -144,7 +145,7 @@ export default class {
      */
     this.config = configResult.config
     if (this.hasDatabase) {
-      const Sequelize = require("sequelize")
+      const Sequelize = __non_webpack_require__("sequelize")
       /**
        * @type {import("sequelize").Sequelize}
        */
@@ -164,7 +165,7 @@ export default class {
       })
     }
     if (this.hasServer) {
-      const Koa = require("koa")
+      const Koa = __non_webpack_require__("koa")
       /**
        * @type {import("koa")}
        */
@@ -181,14 +182,14 @@ export default class {
       })
     }
     if (this.hasInsecureServer) {
-      const {createServer} = require(options.http2 ? "http2" : "http")
+      const {createServer} = __non_webpack_require__(options.http2 ? "http2" : "http")
       /**
        * @type {require("http2").Http2Server}
        */
       this.insecureServer = createServer(this.koa.callback())
     }
     if (this.hasSecureServer) {
-      const {createSecureServer} = require(options.http2 ? "http2" : "https")
+      const {createSecureServer} = __non_webpack_require__(options.http2 ? "http2" : "https")
       /**
        * @type {require("http2").Http2SecureServer}
        */
@@ -213,6 +214,20 @@ export default class {
       sequelize: this.database,
       indexes: definition.indexes,
     })
+  }
+
+  async close() {
+    if (this.hasInsecureServer) {
+      const close = pify(this.insecureServer.close.bind(this.insecureServer))
+      await close()
+    }
+    if (this.hasSecureServer) {
+      const close = pify(this.secureServer.close.bind(this.secureServer))
+      await close()
+    }
+    if (this.hasDatabase) {
+      this.database.close()
+    }
   }
 
   async init() {
