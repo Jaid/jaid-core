@@ -265,7 +265,7 @@ export default class {
           }
         }
       }
-      const initTapCount = this.hooks.init.taps.length
+      const initTapCount = this.hooks.init.taps?.length || 0
       if (initTapCount > 0) {
         const startTime = Date.now()
         await this.hooks.init.promise(this)
@@ -292,7 +292,7 @@ export default class {
       }
     } catch (error) {
       this.logger.error("Could not initialize.\n%s", error)
-      process.exit(1)
+      throw error
     }
   }
 
