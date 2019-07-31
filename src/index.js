@@ -218,9 +218,9 @@ export default class {
   async init() {
     try {
       if (this.hasDatabase) {
-        await this.database.authenticate()
         this.hooks.addModels.call(this.registerModel)
         this.logger.info("%s plugins added %s models to the database", this.hooks.addModels.taps.length, this.database.models.length)
+        await this.database.authenticate()
         if (this.config.databaseSchemaSync === "sync") {
           await this.database.sync()
         }
