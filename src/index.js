@@ -296,6 +296,7 @@ export default class {
           this.logger.debug("Called start on %s models in %s ms", modelsWithStart.length, Date.now() - startTime)
         }
       }
+      this.logger.info("Ready after %s ms", Date.now() - this.startTime.getTime())
     } catch (error) {
       this.logger.error("Could not initialize.\n%s", error)
       throw error
