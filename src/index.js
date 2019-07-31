@@ -5,6 +5,7 @@ import camelCase from "camelcase"
 import essentialConfig from "essential-config"
 import hasContent from "has-content"
 import {isString} from "lodash"
+import ensureArray from "ensure-array"
 
 /**
  * @typedef {Object} Options
@@ -13,9 +14,11 @@ import {isString} from "lodash"
  * @prop {string} version
  * @prop {import("essential-config").Options} configSetup
  * @prop {boolean|string} database
- * @prop {Object<string, *>} sequelizeOptions
+ * @prop {import("sequelize").Options} sequelizeOptions
  * @prop {number} insecurePort
  * @prop {number} securePort
+ * @prop {boolean} [http2=false]
+ * @prop {string} [serverLogLevel="debug"]
  */
 
 /**
@@ -44,6 +47,8 @@ export default class {
      */
     this.startTime = new Date()
     options = {
+      http2: false,
+      serverLogLevel: "debug",
       configSetup: {},
       ...options,
     }
@@ -57,11 +62,11 @@ export default class {
     /**
      * @type {string[]}
      */
-    const appPath = [...options.folder || [], options.name]
+    this.appPath = [...ensureArray(options.folder), options.name]
     /**
      * @type {import("jaid-logger").JaidLogger}
      */
-    this.logger = jaidLogger(appPath)
+    this.logger = jaidLogger(this.appPath)
     /**
      * @type {string}
      */
@@ -96,13 +101,13 @@ export default class {
         securePort: options.securePort,
       })
     }
-    const configResult = essentialConfig(options.configSetup)
+    const configResult = essentialConfig(this.appPath, options.configSetup)
     if (!configResult.config) {
       this.logger.warn("Set up default config at %s, please edit and restart!", configResult.configFile)
       process.exit(2)
     }
     if (configResult.newKeys |> hasContent) {
-      this.logger.info("Added new keys to config file %s: %s", configResult.config, configResult.newKeys.join(", "))
+      this.logger.info("Added new keys to config file %s: %s", configResult.configFile, configResult.newKeys.join(", "))
     }
     /**
      * @type {string}
@@ -137,24 +142,24 @@ export default class {
       this.koa = new Koa()
       this.koa.use(async (context, next) => {
         await next()
-        const rt = context.response.get("X-Response-Time")
-        console.log(`${context.method} ${context.url} - ${rt}`)
+        const responseTime = context.response.get("X-Response-Time")
+        this.logger.log(options.serverLogLevel, "[%s %s in %sms] %s %s", context.status, context.message, responseTime, context.method, context.url)
       })
       this.koa.use(async (context, next) => {
         const startTime = Date.now()
         await next()
-        context.set("X-Response-Time", `${Date.now() - startTime}ms`)
+        context.set("X-Response-Time", Date.now() - startTime)
       })
     }
     if (hasInsecureServer) {
-      const {createServer} = require("http2")
+      const {createServer} = require(options.http2 ? "http2" : "http")
       /**
        * @type {require("http2").Http2Server}
        */
       this.insecureServer = createServer(this.koa.callback())
     }
     if (hasSecureServer) {
-      const {createSecureServer} = require("http2")
+      const {createSecureServer} = require(options.http2 ? "http2" : "https")
       /**
        * @type {require("http2").Http2SecureServer}
        */
@@ -165,9 +170,11 @@ export default class {
   async init() {
     if (this.insecureServer !== undefined) {
       this.insecureServer.listen(this.config.insecurePort)
+      this.logger.info("Started insecure server on port %s", this.config.insecurePort)
     }
     if (this.secureServer !== undefined) {
       this.secureServer.listen(this.config.securePort)
+      this.logger.info("Started secure server on port %s", this.config.securePort)
     }
   }
 
