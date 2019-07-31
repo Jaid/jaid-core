@@ -6,6 +6,7 @@ import essentialConfig from "essential-config"
 import hasContent from "has-content"
 import Sequelize from "sequelize"
 import {isString} from "lodash"
+
 /**
  * @typedef {Object} Options
  * @prop {string} name
