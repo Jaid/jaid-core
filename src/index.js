@@ -45,6 +45,12 @@ import pify from "pify"
  */
 
 /**
+ * @typedef {Object<string, *>} Hooks
+ * @prop {import("tapable").AsyncParallelHook} init
+ * @prop {import("tapable").SyncHook} addModels
+ */
+
+/**
  * @class
  */
 export default class {
@@ -196,13 +202,13 @@ export default class {
       this.secureServer = createSecureServer(this.koa.callback())
     }
     /**
-     * @type {Object<string, import("tapable").Hook>}
+     * @type {Hooks}
      */
     this.hooks = {
-      init: () => new AsyncParallelHook(["core"]),
+      init: new AsyncParallelHook(["core"]),
     }
     if (this.hasDatabase) {
-      this.hooks.addModels = () => new SyncHook(["registerModel"])
+      this.hooks.addModels = new SyncHook(["registerModel"])
     }
   }
 
