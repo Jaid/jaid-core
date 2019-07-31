@@ -9,6 +9,8 @@ import ensureArray from "ensure-array"
 import sortKeys from "sort-keys"
 import {SyncHook, AsyncParallelHook} from "tapable"
 import pify from "pify"
+import isClass from "is-class"
+import mapObject from "map-obj"
 
 /**
  * @typedef {Object} Options
@@ -242,10 +244,26 @@ export default class {
   }
 
   /**
+   * @param {Object<string, Object>} [plugins={}]
    * @returns {Promise<void>}
    */
-  async init() {
+  async init(plugins = {}) {
     try {
+      /**
+       * @type {Object<string, Object>}
+       */
+      this.plugins = mapObject(plugins, (key, value) => {
+        return [key, isClass(value) ? new value(this) : value]
+      })
+      /**
+       * @type {boolean}
+       */
+      this.hasPlugins = Object.keys(this.plugins).length > 0
+      for (const [pluginName, plugin] of Object.entries(this.plugins)) {
+        if (plugin.init) {
+          this.hooks.init.tapPromise(pluginName, plugin.init)
+        }
+      }
       if (this.hasDatabase) {
         this.hooks.addModels.call(this.registerModel)
         const models = Object.values(this.database.models)

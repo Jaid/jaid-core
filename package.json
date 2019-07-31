@@ -9,9 +9,11 @@
     "ensure-array": "^1.0.0",
     "essential-config": "^3.1.1",
     "has-content": "^1.1.0",
+    "is-class": "0.0.8",
     "jaid-logger": "^1.4.2",
     "koa": "^2.7.0",
     "lodash": "^4.17.15",
+    "map-obj": "^4.1.0",
     "pify": "^4.0.1",
     "sort-keys": "^3.0.0",
     "tapable": "^1.1.3"
