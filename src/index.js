@@ -7,7 +7,7 @@ import hasContent from "has-content"
 import {isString} from "lodash"
 import ensureArray from "ensure-array"
 import sortKeys from "sort-keys"
-import {SyncHook} from "tapable"
+import {SyncHook, AsyncParallelHook} from "tapable"
 import pify from "pify"
 
 /**
@@ -198,9 +198,11 @@ export default class {
     /**
      * @type {Object<string, import("tapable").Hook>}
      */
-    this.hooks = {}
+    this.hooks = {
+      init: () => new AsyncParallelHook(["core"]),
+    }
     if (this.hasDatabase) {
-      this.hooks.addModels = new SyncHook(["registerModel"])
+      this.hooks.addModels = () => new SyncHook(["registerModel"])
     }
   }
 
@@ -262,6 +264,12 @@ export default class {
             })
           }
         }
+      }
+      const initTapCount = this.hooks.init.taps.length
+      if (initTapCount > 0) {
+        const startTime = Date.now()
+        await this.hooks.init.promise(this)
+        this.logger.info("Executed init tap for %s plugins in %s ms", initTapCount, Date.now() - startTime)
       }
       if (this.hasInsecureServer) {
         this.insecureServer.listen(this.config.insecurePort)
