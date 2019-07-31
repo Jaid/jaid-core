@@ -224,6 +224,9 @@ export default class {
     })
   }
 
+  /**
+   * @returns {Promise<void>}
+   */
   async close() {
     if (this.hasInsecureServer) {
       const close = pify(this.insecureServer.close.bind(this.insecureServer))
@@ -238,6 +241,9 @@ export default class {
     }
   }
 
+  /**
+   * @returns {Promise<void>}
+   */
   async init() {
     try {
       if (this.hasDatabase) {
