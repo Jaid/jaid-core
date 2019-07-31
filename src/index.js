@@ -234,13 +234,20 @@ export default class {
     try {
       if (this.hasDatabase) {
         this.hooks.addModels.call(this.registerModel)
-        const modelsCount = Object.keys(this.database.models).length
-        if (modelsCount === 0) {
+        const models = Object.values(this.database.models)
+        if (models.length === 0) {
           this.logger.warn("No models have been registered")
           await this.database.authenticate()
         } else {
-          this.logger.info("%s plugins added %s models to the database", this.hooks.addModels.taps.length, this.database.models.length)
+          this.logger.info("%s plugins added %s models to the database", this.hooks.addModels.taps.length, models.length)
           await this.database.authenticate()
+          const modelsWithAssociate = models.filter(model => model.associate)
+          if (modelsWithAssociate.length > 0) {
+            for (const model of modelsWithAssociate) {
+              model.associate(this.database.models)
+            }
+            this.logger.debug("Called associate on %s models", modelsWithAssociate.length)
+          }
           if (this.config.databaseSchemaSync === "sync") {
             await this.database.sync()
           }
@@ -263,6 +270,17 @@ export default class {
       if (this.hasSecureServer) {
         this.secureServer.listen(this.config.securePort)
         this.logger.info("Started secure server on port %s", this.config.securePort)
+      }
+      if (this.database) {
+        const modelsWithStart = Object.values(this.database.models).filter(model => model.start)
+        if (modelsWithStart.length > 0) {
+          const startTime = Date.now()
+          const startJobs = modelsWithStart.map(async model => {
+            await model.start()
+          })
+          await Promise.all(startJobs)
+          this.logger.debug("Called start on %s models in %s ms", modelsWithStart.length, Date.now() - startTime)
+        }
       }
     } catch (error) {
       this.logger.error("Could not initialize.\n%s", error)
