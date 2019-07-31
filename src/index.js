@@ -259,9 +259,21 @@ export default class {
        * @type {boolean}
        */
       this.hasPlugins = Object.keys(this.plugins).length > 0
+      const hookMapping = [
+        {
+          key: "init",
+          tapFunction: "tapPromise",
+        },
+        {
+          key: "addModels",
+          tapFunction: "tap",
+        },
+      ]
       for (const [pluginName, plugin] of Object.entries(this.plugins)) {
-        if (plugin.init) {
-          this.hooks.init.tapPromise(pluginName, plugin.init)
+        for (const {key, tapFunction} of hookMapping) {
+          if (plugin.hasOwnProperty(key)) {
+            this.hooks[key][tapFunction](pluginName, plugin.init)
+          }
         }
       }
       if (this.hasDatabase) {
