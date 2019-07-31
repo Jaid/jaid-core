@@ -18,7 +18,8 @@ import ensureArray from "ensure-array"
  * @prop {number} insecurePort
  * @prop {number} securePort
  * @prop {boolean} [http2=false]
- * @prop {string} [serverLogLevel="debug"]
+ * @prop {"error"|"warn"|"info"|"debug"|"silly"} [serverLogLevel="debug"]
+ * @prop {"error"|"warn"|"info"|"debug"|"silly"} [databaseLogLevel="debug"]
  */
 
 /**
@@ -49,6 +50,7 @@ export default class {
     options = {
       http2: false,
       serverLogLevel: "debug",
+      databaseLogLevel: "debug",
       configSetup: {},
       ...options,
     }
@@ -129,7 +131,7 @@ export default class {
         timezone: this.config.timezone,
         benchmark: true,
         logging: line => {
-          this.logger.debug(line)
+          this.logger.log(options.databaseLogLevel, line)
         },
         ...options.sequelizeOptions,
       })
