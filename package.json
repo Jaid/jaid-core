@@ -7,7 +7,10 @@
     "@babel/runtime": "^7.5.5",
     "camelcase": "^5.3.1",
     "essential-config": "^3.1.1",
-    "jaid-logger": "^1.4.2"
+    "has-content": "^1.1.0",
+    "jaid-logger": "^1.4.2",
+    "lodash": "^4.17.15",
+    "sequelize": "^5.12.1"
   },
   "devDependencies": {
     "acorn": "^6.2.1",
