@@ -9,6 +9,7 @@
     "essential-config": "^3.1.1",
     "has-content": "^1.1.0",
     "jaid-logger": "^1.4.2",
+    "koa": "^2.7.0",
     "lodash": "^4.17.15",
     "sequelize": "^5.12.1"
   },
@@ -18,7 +19,7 @@
     "babel-preset-jaid": "^6.8.2",
     "browserslist-config-jaid-node": "^2.2.1",
     "eslint": "^6.1.0",
-    "eslint-config-jaid": "^1.26.0",
+    "eslint-config-jaid": "^1.27.0",
     "jest": "^24.8.0",
     "rimraf": "^2.6.3",
     "webpack": "^4.38.0",

@@ -4,7 +4,6 @@ import jaidLogger from "jaid-logger"
 import camelCase from "camelcase"
 import essentialConfig from "essential-config"
 import hasContent from "has-content"
-import Sequelize from "sequelize"
 import {isString} from "lodash"
 
 /**
@@ -15,6 +14,19 @@ import {isString} from "lodash"
  * @prop {import("essential-config").Options} configSetup
  * @prop {boolean|string} database
  * @prop {Object<string, *>} sequelizeOptions
+ * @prop {number} insecurePort
+ * @prop {number} securePort
+ */
+
+/**
+ * @typedef {Object<string, *>} BaseConfig
+ * @prop {string} databaseName
+ * @prop {string} databaseUser
+ * @prop {string} databaseHost
+ * @prop {number} databasePort
+ * @prop {string} timezone
+ * @prop {number} insecurePort
+ * @prop {number} securePort
  */
 
 /**
@@ -36,6 +48,8 @@ export default class {
       ...options,
     }
     const hasDatabase = Boolean(options.database)
+    const hasInsecureServer = Boolean(options.insecurePort)
+    const hasSecureServer = Boolean(options.securePort)
     /**
      * @type {string}
      */
@@ -72,6 +86,16 @@ export default class {
       })
       options.configSetup.sensitiveKeys.push("databasePassword")
     }
+    if (hasInsecureServer) {
+      Object.assign(options.configSetup.defaults, {
+        insecurePort: options.insecurePort,
+      })
+    }
+    if (hasSecureServer) {
+      Object.assign(options.configSetup.defaults, {
+        securePort: options.securePort,
+      })
+    }
     const configResult = essentialConfig(options.configSetup)
     if (!configResult.config) {
       this.logger.warn("Set up default config at %s, please edit and restart!", configResult.configFile)
@@ -85,10 +109,11 @@ export default class {
      */
     this.configFile = configResult.configFile
     /**
-     * @type {Object<string, *>}
+     * @type {BaseConfig}
      */
     this.config = configResult.config
     if (hasDatabase) {
+      const Sequelize = require("sequelize")
       this.database = new Sequelize({
         dialect: "postgres",
         host: this.config.databaseHost,
@@ -104,10 +129,46 @@ export default class {
         ...options.sequelizeOptions,
       })
     }
+    if (hasInsecureServer || hasSecureServer) {
+      const Koa = require("koa")
+      /**
+       * @type {import("koa")}
+       */
+      this.koa = new Koa()
+      this.koa.use(async (context, next) => {
+        await next()
+        const rt = context.response.get("X-Response-Time")
+        console.log(`${context.method} ${context.url} - ${rt}`)
+      })
+      this.koa.use(async (context, next) => {
+        const startTime = Date.now()
+        await next()
+        context.set("X-Response-Time", `${Date.now() - startTime}ms`)
+      })
+    }
+    if (hasInsecureServer) {
+      const {createServer} = require("http2")
+      /**
+       * @type {require("http2").Http2Server}
+       */
+      this.insecureServer = createServer(this.koa.callback())
+    }
+    if (hasSecureServer) {
+      const {createSecureServer} = require("http2")
+      /**
+       * @type {require("http2").Http2SecureServer}
+       */
+      this.secureServer = createSecureServer(this.koa.callback())
+    }
   }
 
   async init() {
-
+    if (this.insecureServer !== undefined) {
+      this.insecureServer.listen(this.config.insecurePort)
+    }
+    if (this.secureServer !== undefined) {
+      this.secureServer.listen(this.config.securePort)
+    }
   }
 
 }
