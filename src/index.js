@@ -272,7 +272,7 @@ export default class {
       for (const [pluginName, plugin] of Object.entries(this.plugins)) {
         for (const {key, tapFunction} of hookMapping) {
           if (plugin[key]) {
-            this.hooks[key][tapFunction](pluginName, plugin.init)
+            this.hooks[key][tapFunction](pluginName, plugin[key])
           }
         }
       }
