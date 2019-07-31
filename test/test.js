@@ -16,6 +16,7 @@ it("should run", async () => {
     insecurePort: 13333,
     version: _PKG_VERSION,
     serverLogLevel: "info",
+    databaseLogLevel: "info",
   })
   core.koa.use(async context => {
     context.body = "hi"

@@ -6,6 +6,7 @@ import essentialConfig from "essential-config"
 import hasContent from "has-content"
 import {isString} from "lodash"
 import ensureArray from "ensure-array"
+import sortKeys from "sort-keys"
 
 /**
  * @typedef {Object} Options
@@ -31,6 +32,13 @@ import ensureArray from "ensure-array"
  * @prop {string} timezone
  * @prop {number} insecurePort
  * @prop {number} securePort
+ */
+
+/**
+ * @typedef {Object} SequelizeDefinition
+ * @prop {import("sequelize").ModelAttributes} schema
+ * @prop {import("sequelize").IndexesOptions[]} indexes
+ * @prop {typeof import("sequelize").Model} default
  */
 
 /**
@@ -167,6 +175,18 @@ export default class {
        */
       this.secureServer = createSecureServer(this.koa.callback())
     }
+  }
+
+  /**
+   * @param {string} modelName
+   * @param {SequelizeDefinition} definition
+   */
+  registerModel(modelName, definition) {
+    definition.default.init(definition.schema |> sortKeys, {
+      modelName,
+      sequelize: this.database,
+      indexes: definition.indexes,
+    })
   }
 
   async init() {
