@@ -7,6 +7,7 @@ import hasContent from "has-content"
 import {isString} from "lodash"
 import ensureArray from "ensure-array"
 import sortKeys from "sort-keys"
+import {SyncHook} from "tapable"
 
 /**
  * @typedef {Object} Options
@@ -63,9 +64,22 @@ export default class {
       configSetup: {},
       ...options,
     }
-    const hasDatabase = Boolean(options.database)
-    const hasInsecureServer = Boolean(options.insecurePort)
-    const hasSecureServer = Boolean(options.securePort)
+    /**
+     * @type {boolean}
+     */
+    this.hasDatabase = Boolean(options.database)
+    /**
+     * @type {boolean}
+     */
+    this.hasInsecureServer = Boolean(options.insecurePort)
+    /**
+     * @type {boolean}
+     */
+    this.hasSecureServer = Boolean(options.securePort)
+    /**
+     * @type {boolean}
+     */
+    this.hasServer = this.hasInsecureServer || this.hasSecureServer
     /**
      * @type {string}
      */
@@ -92,7 +106,7 @@ export default class {
     if (options.configSetup.sensitiveKeys === undefined) {
       options.configSetup.sensitiveKeys = []
     }
-    if (hasDatabase) {
+    if (this.hasDatabase) {
       Object.assign(options.configSetup.defaults, {
         databaseName: isString(options.database) ? options.database : this.camelName,
         databaseUser: "postgres",
@@ -103,12 +117,12 @@ export default class {
       })
       options.configSetup.sensitiveKeys.push("databasePassword")
     }
-    if (hasInsecureServer) {
+    if (this.hasInsecureServer) {
       Object.assign(options.configSetup.defaults, {
         insecurePort: options.insecurePort,
       })
     }
-    if (hasSecureServer) {
+    if (this.hasSecureServer) {
       Object.assign(options.configSetup.defaults, {
         securePort: options.securePort,
       })
@@ -129,7 +143,7 @@ export default class {
      * @type {BaseConfig}
      */
     this.config = configResult.config
-    if (hasDatabase) {
+    if (this.hasDatabase) {
       const Sequelize = require("sequelize")
       /**
        * @type {import("sequelize").Sequelize}
@@ -149,7 +163,7 @@ export default class {
         ...options.sequelizeOptions,
       })
     }
-    if (hasInsecureServer || hasSecureServer) {
+    if (this.hasServer) {
       const Koa = require("koa")
       /**
        * @type {import("koa")}
@@ -166,19 +180,26 @@ export default class {
         context.set("X-Response-Time", Date.now() - startTime)
       })
     }
-    if (hasInsecureServer) {
+    if (this.hasInsecureServer) {
       const {createServer} = require(options.http2 ? "http2" : "http")
       /**
        * @type {require("http2").Http2Server}
        */
       this.insecureServer = createServer(this.koa.callback())
     }
-    if (hasSecureServer) {
+    if (this.hasSecureServer) {
       const {createSecureServer} = require(options.http2 ? "http2" : "https")
       /**
        * @type {require("http2").Http2SecureServer}
        */
       this.secureServer = createSecureServer(this.koa.callback())
+    }
+    /**
+     * @type {Object<string, import("tapable").Hook>}
+     */
+    this.hooks = {}
+    if (this.hasDatabase) {
+      this.hooks.addModels = new SyncHook(["registerModel"])
     }
   }
 
@@ -195,29 +216,36 @@ export default class {
   }
 
   async init() {
-    if (this.database) {
-      await database.authenticate()
-      if (config.databaseSchemaSync === "sync") {
-        await database.sync()
+    try {
+      if (this.hasDatabase) {
+        await this.database.authenticate()
+        this.hooks.addModels.call(this.registerModel)
+        this.logger.info("%s plugins added %s models to the database", this.hooks.addModels.taps.length, this.database.models.length)
+        if (this.config.databaseSchemaSync === "sync") {
+          await this.database.sync()
+        }
+        if (this.config.databaseSchemaSync === "force") {
+          await this.database.sync({
+            force: true,
+          })
+        }
+        if (this.config.databaseSchemaSync === "alter") {
+          await this.database.sync({
+            alter: true,
+          })
+        }
       }
-      if (config.databaseSchemaSync === "force") {
-        await database.sync({
-          force: true,
-        })
+      if (this.hasInsecureServer) {
+        this.insecureServer.listen(this.config.insecurePort)
+        this.logger.info("Started insecure server on port %s", this.config.insecurePort)
       }
-      if (config.databaseSchemaSync === "alter") {
-        await database.sync({
-          alter: true,
-        })
+      if (this.hasSecureServer) {
+        this.secureServer.listen(this.config.securePort)
+        this.logger.info("Started secure server on port %s", this.config.securePort)
       }
-    }
-    if (this.insecureServer) {
-      this.insecureServer.listen(this.config.insecurePort)
-      this.logger.info("Started insecure server on port %s", this.config.insecurePort)
-    }
-    if (this.secureServer) {
-      this.secureServer.listen(this.config.securePort)
-      this.logger.info("Started secure server on port %s", this.config.securePort)
+    } catch (error) {
+      this.logger.error("Could not initialize.\n%s", error)
+      process.exit(1)
     }
   }
 
