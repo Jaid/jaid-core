@@ -234,20 +234,26 @@ export default class {
     try {
       if (this.hasDatabase) {
         this.hooks.addModels.call(this.registerModel)
-        this.logger.info("%s plugins added %s models to the database", this.hooks.addModels.taps.length, this.database.models.length)
-        await this.database.authenticate()
-        if (this.config.databaseSchemaSync === "sync") {
-          await this.database.sync()
-        }
-        if (this.config.databaseSchemaSync === "force") {
-          await this.database.sync({
-            force: true,
-          })
-        }
-        if (this.config.databaseSchemaSync === "alter") {
-          await this.database.sync({
-            alter: true,
-          })
+        const modelsCount = Object.keys(this.database.models).length
+        if (modelsCount === 0) {
+          this.logger.warn("No models have been registered")
+          await this.database.authenticate()
+        } else {
+          this.logger.info("%s plugins added %s models to the database", this.hooks.addModels.taps.length, this.database.models.length)
+          await this.database.authenticate()
+          if (this.config.databaseSchemaSync === "sync") {
+            await this.database.sync()
+          }
+          if (this.config.databaseSchemaSync === "force") {
+            await this.database.sync({
+              force: true,
+            })
+          }
+          if (this.config.databaseSchemaSync === "alter") {
+            await this.database.sync({
+              alter: true,
+            })
+          }
         }
       }
       if (this.hasInsecureServer) {
