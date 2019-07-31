@@ -25,7 +25,7 @@
     "babel-preset-jaid": "^6.8.2",
     "browserslist-config-jaid-node": "^2.2.1",
     "eslint": "^6.1.0",
-    "eslint-config-jaid": "^1.27.0",
+    "eslint-config-jaid": "^1.28.0",
     "got": "^9.6.0",
     "jest": "^24.8.0",
     "rimraf": "^2.6.3",
