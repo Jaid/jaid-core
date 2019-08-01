@@ -307,6 +307,7 @@ export default class {
               port: this.database.options.port,
               name: this.database.options.database,
             })
+            this.logger.info("Ensured existence of database %s at %s:%s", this.database.options.database, this.database.options.host, this.database.options.port)
           } catch (error) {
             this.logger.error("Could not create database %s: %s", this.database.options.database, error)
           }
