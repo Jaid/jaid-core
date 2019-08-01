@@ -232,17 +232,19 @@ export default class {
    * @returns {Promise<void>}
    */
   async close() {
+    const closeJobs = []
     if (this.hasInsecureServer) {
       const close = pify(this.insecureServer.close.bind(this.insecureServer))
-      await close()
+      closeJobs.push(close())
     }
     if (this.hasSecureServer) {
       const close = pify(this.secureServer.close.bind(this.secureServer))
-      await close()
+      closeJobs.push(close())
     }
     if (this.hasDatabase) {
-      this.database.close()
+      closeJobs.push(this.database.close())
     }
+    await Promise.all(closeJobs)
   }
 
   /**
