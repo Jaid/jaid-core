@@ -297,7 +297,7 @@ export default class {
         }
       }
       if (this.hasDatabase) {
-        if (this.database.getDialect === "postgres") {
+        if (this.database.options.dialect === "postgres") {
           try {
             const {create} = __non_webpack_require__("pg-create-drop-db")
             await create({
