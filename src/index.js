@@ -328,7 +328,7 @@ export default class {
       }
       this.logger.info("Ready after %s ms", Date.now() - this.startTime.getTime())
     } catch (error) {
-      this.logger.error("Could not initialize.\n%s", error)
+      this.logger.error("Could not initialize: %s", error)
       throw error
     }
   }
