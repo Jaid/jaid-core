@@ -27,6 +27,8 @@ import hookMapping from "./hooks.yml"
  * @prop {boolean} [http2=false]
  * @prop {"error"|"warn"|"info"|"debug"|"silly"} [serverLogLevel="debug"]
  * @prop {"error"|"warn"|"info"|"debug"|"silly"} [databaseLogLevel="debug"]
+ * @prop {"error"|"warn"|"info"|"debug"|"silly"} [gotLogLevel="debug"]
+ * @prop {boolean} [useGot=true]
  */
 
 /**
@@ -73,6 +75,7 @@ export default class {
       serverLogLevel: "debug",
       databaseLogLevel: "debug",
       configSetup: {},
+      useGot: true,
       ...options,
     }
     /**
@@ -189,6 +192,27 @@ export default class {
         const startTime = Date.now()
         await next()
         context.set("X-Response-Time", Date.now() - startTime)
+      })
+    }
+    if (options.useGot) {
+      /**
+       * @type {import("got")}
+       */
+      const got = __non_webpack_require__("got")
+      /**
+       * @type {import("got").GotExtend}
+       */
+      this.got = got.extend({
+        headers: {
+          "User-Agent": `${this.camelName}/${options.version}`,
+        },
+        hooks: {
+          afterResponse: [
+            response => {
+              this.logger.log(options.gotLogLevel, `Requested ${response.method} ${response.requestUrl} -> ${response.statusCode} ${response.statusMessage} in ${response.timings.phases.total}`)
+            },
+          ],
+        },
       })
     }
     if (this.hasInsecureServer) {
