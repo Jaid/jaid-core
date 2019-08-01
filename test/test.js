@@ -1,6 +1,5 @@
 import path from "path"
 
-import got from "got"
 import ms from "ms.macro"
 
 const indexModule = (process.env.MAIN ? path.resolve(process.env.MAIN) : path.join(__dirname, "..", "src")) |> require
@@ -18,12 +17,18 @@ it("should run", async () => {
     version: _PKG_VERSION,
     serverLogLevel: "info",
     databaseLogLevel: "info",
+    gotLogLevel: "info",
   })
+  expect(core.got).toBeTruthy()
+  expect(typeof core.got.get === "function").toBeTruthy()
+  let requestReceived = false
   core.koa.use(async context => {
+    requestReceived = true
     context.body = "hi"
   })
   await core.init()
-  const response = await got("http://localhost:13333")
+  const response = await core.got("http://localhost:13333")
+  expect(requestReceived).toBeTruthy()
   expect(response.statusCode).toBe(200)
   expect(response.statusMessage).toBe("OK")
   expect(response.headers["x-response-time"]).toBeTruthy()

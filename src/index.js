@@ -200,7 +200,7 @@ export default class {
        */
       const got = __non_webpack_require__("got")
       /**
-       * @type {import("got").GotExtend}
+       * @type {import("got").GotInstance}
        */
       this.got = got.extend({
         headers: {
@@ -209,7 +209,8 @@ export default class {
         hooks: {
           afterResponse: [
             response => {
-              this.logger.log(options.gotLogLevel, `Requested ${response.method} ${response.requestUrl} -> ${response.statusCode} ${response.statusMessage} in ${response.timings.phases.total}`)
+              this.logger.log(options.gotLogLevel, `Requested ${response.request.gotOptions.method} ${response.requestUrl} -> ${response.statusCode} ${response.statusMessage} in ${response.timings.phases.total}`)
+              return response
             },
           ],
         },
