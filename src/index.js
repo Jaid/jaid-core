@@ -11,6 +11,7 @@ import {SyncHook, AsyncParallelHook} from "tapable"
 import pify from "pify"
 import isClass from "is-class"
 import mapObject from "map-obj"
+import readableMs from "readable-ms"
 
 import hookMapping from "./hooks.yml"
 
@@ -186,7 +187,7 @@ export default class {
       this.koa.use(async (context, next) => {
         await next()
         const responseTime = context.response.get("X-Response-Time")
-        this.logger.log(options.serverLogLevel, "[%s %s in %sms] %s %s", context.status, context.message, responseTime, context.method, context.url)
+        this.logger.log(options.serverLogLevel, "[%s %s in %s] %s %s", context.status, context.message, readableMs(responseTime), context.method, context.url)
       })
       this.koa.use(async (context, next) => {
         const startTime = Date.now()
@@ -209,7 +210,7 @@ export default class {
         hooks: {
           afterResponse: [
             response => {
-              this.logger.log(options.gotLogLevel, `Requested ${response.request.gotOptions.method} ${response.requestUrl} -> ${response.statusCode} ${response.statusMessage} in ${response.timings.phases.total}`)
+              this.logger.log(options.gotLogLevel, `Requested ${response.request.gotOptions.method} ${response.requestUrl} -> ${response.statusCode} ${response.statusMessage} in ${readableMs(response.timings.phases.total)}`)
               return response
             },
           ],
@@ -330,7 +331,7 @@ export default class {
       if (initTapCount > 0) {
         const startTime = Date.now()
         await this.hooks.init.promise(this)
-        this.logger.info("Executed init tap for %s plugins in %s ms", initTapCount, Date.now() - startTime)
+        this.logger.info("Executed init tap for %s plugins in %s", initTapCount, readableMs(Date.now() - startTime))
       }
       if (this.hasInsecureServer) {
         this.insecureServer.listen(this.config.insecurePort)
@@ -348,7 +349,7 @@ export default class {
             await model.start()
           })
           await Promise.all(startJobs)
-          this.logger.debug("Called start on %s models in %s ms", modelsWithStart.length, Date.now() - startTime)
+          this.logger.debug("Called start on %s models in %s", modelsWithStart.length, readableMs(Date.now() - startTime))
         }
       }
       this.logger.info("Ready after %s ms", Date.now() - this.startTime.getTime())
