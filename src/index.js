@@ -297,6 +297,20 @@ export default class {
         }
       }
       if (this.hasDatabase) {
+        if (this.database.getDialect === "postgres") {
+          try {
+            const {create} = __non_webpack_require__("pg-create-drop-db")
+            await create({
+              user: this.database.options.username,
+              pass: this.database.options.password,
+              host: this.database.options.host,
+              port: this.database.options.port,
+              name: this.database.options.database,
+            })
+          } catch (error) {
+            this.logger.error("Could not create database %s: %s", this.database.options.database, error)
+          }
+        }
         this.hooks.addModels.call(this.registerModel.bind(this))
         const models = Object.values(this.database.models)
         if (models.length === 0) {
