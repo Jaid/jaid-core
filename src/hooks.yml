@@ -1,0 +1,4 @@
+- hookName: init
+  tapFunction: tapPromise
+- hookName: addModels
+  tapFunction: tap

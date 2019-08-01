@@ -12,6 +12,8 @@ import pify from "pify"
 import isClass from "is-class"
 import mapObject from "map-obj"
 
+import hookMapping from "./hooks.yml"
+
 /**
  * @typedef {Object} Options
  * @prop {string} name
@@ -259,20 +261,10 @@ export default class {
        * @type {boolean}
        */
       this.hasPlugins = Object.keys(this.plugins).length > 0
-      const hookMapping = [
-        {
-          key: "init",
-          tapFunction: "tapPromise",
-        },
-        {
-          key: "addModels",
-          tapFunction: "tap",
-        },
-      ]
       for (const [pluginName, plugin] of Object.entries(this.plugins)) {
-        for (const {key, tapFunction} of hookMapping) {
-          if (plugin[key]) {
-            this.hooks[key][tapFunction](pluginName, plugin[key])
+        for (const {hookName, tapFunction} of hookMapping) {
+          if (plugin[hookName]) {
+            this.hooks[hookName][tapFunction](pluginName, plugin[hookName])
           }
         }
       }
