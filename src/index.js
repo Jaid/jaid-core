@@ -187,7 +187,7 @@ export default class {
       this.koa.use(async (context, next) => {
         await next()
         const responseTime = context.response.get("X-Response-Time")
-        this.logger.log(options.serverLogLevel, "[%s %s in %s] %s %s", context.status, context.message, readableMs(responseTime), context.method, context.url)
+        this.logger.log(options.serverLogLevel, "[%s %s in %s] ◀︎ %s %s", context.status, context.message, readableMs(responseTime), context.method, context.url)
       })
       this.koa.use(async (context, next) => {
         const startTime = Date.now()
@@ -210,7 +210,7 @@ export default class {
         hooks: {
           afterResponse: [
             response => {
-              this.logger.log(options.gotLogLevel, `Requested ${response.request.gotOptions.method} ${response.requestUrl} -> ${response.statusCode} ${response.statusMessage} in ${readableMs(response.timings.phases.total)}`)
+              this.logger.log(options.gotLogLevel, `Requested ${response.request.gotOptions.method} ${response.requestUrl} ▶︎ ${response.statusCode} ${response.statusMessage} in ${readableMs(response.timings.phases.total)}`)
               return response
             },
           ],
