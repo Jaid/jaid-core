@@ -55,6 +55,7 @@ import hookMapping from "./hooks.yml"
  * @typedef {Object<string, *>} Hooks
  * @prop {import("tapable").AsyncParallelHook} init
  * @prop {import("tapable").SyncHook} addModels
+ * @prop {import("tapable".AsyncParallelHook)} ready
  */
 
 /**
@@ -368,6 +369,12 @@ export default class {
         }
       }
       this.logger.info("Ready after %s ms", Date.now() - this.startTime.getTime())
+      const readyTapCount = this.hooks.ready.taps?.length || 0
+      if (readyTapCount > 0) {
+        const startTime = Date.now()
+        await this.hooks.ready.promise(this)
+        this.logger.info("Executed ready tap for %s plugins in %s", readyTapCount, readableMs(Date.now() - startTime))
+      }
     } catch (error) {
       this.logger.error("Could not initialize: %s", error)
       throw error
