@@ -237,6 +237,7 @@ export default class {
      */
     this.hooks = {
       init: new AsyncParallelHook(["core"]),
+      ready: new AsyncParallelHook(["core"]),
     }
     if (this.hasDatabase) {
       this.hooks.addModels = new SyncHook(["registerModel"])
