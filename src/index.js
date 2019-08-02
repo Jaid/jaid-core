@@ -211,7 +211,7 @@ export default class {
         hooks: {
           afterResponse: [
             response => {
-              this.logger.log(options.gotLogLevel, `Requested ${response.request.gotOptions.method} ${response.requestUrl} ▶︎ ${response.statusCode} ${response.statusMessage} in ${readableMs(response.timings.phases.total)}`)
+              this.logger.log(options.gotLogLevel, `[${response.statusCode} ${response.statusMessage} in ${readableMs(response.timings.phases.total)}] ▶︎ ${response.request.gotOptions.method} ${response.requestUrl}`)
               return response
             },
           ],
