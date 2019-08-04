@@ -76,6 +76,7 @@ export default class {
       http2: false,
       serverLogLevel: "debug",
       databaseLogLevel: "debug",
+      gotLogLevel: "debug",
       configSetup: {},
       useGot: true,
       ...options,
