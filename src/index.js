@@ -35,6 +35,7 @@ import hookMapping from "./hooks.yml"
 
 /**
  * @typedef {Object} BaseConfig
+ * @prop {string} databaseDialect
  * @prop {string} databaseName
  * @prop {string} databaseUser
  * @prop {string} databaseHost
@@ -128,6 +129,7 @@ export default class {
       Object.assign(options.configSetup.defaults, {
         databaseName: isString(options.database) ? options.database : this.camelName,
         databaseUser: "postgres",
+        databaseDialect: "postgres",
         databaseHost: "localhost",
         databasePort: 5432,
         databaseSchemaSync: "alter",
@@ -165,7 +167,7 @@ export default class {
        * @type {import("sequelize").Sequelize}
        */
       this.database = new Sequelize({
-        dialect: "postgres",
+        dialect: this.config.databaseDialect,
         host: this.config.databaseHost,
         port: this.config.databasePort,
         database: this.config.databaseName,
