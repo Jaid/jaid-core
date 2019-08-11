@@ -7,14 +7,11 @@ import hasContent from "has-content"
 import {isString} from "lodash"
 import ensureArray from "ensure-array"
 import sortKeys from "sort-keys"
-import {SyncHook, AsyncParallelHook} from "tapable"
 import pify from "pify"
 import isClass from "is-class"
 import mapObject from "map-obj"
 import readableMs from "readable-ms"
 import plural from "pluralize-inclusive"
-
-import hookMapping from "./hooks.yml"
 
 /**
  * @typedef {Object} Options
@@ -51,13 +48,6 @@ import hookMapping from "./hooks.yml"
  * @prop {import("sequelize").ModelAttributes} schema
  * @prop {import("sequelize").IndexesOptions[]} indexes
  * @prop {typeof import("sequelize").Model} default
- */
-
-/**
- * @typedef {Object} Hooks
- * @prop {import("tapable").AsyncParallelHook} init
- * @prop {import("tapable").SyncHook} addModels
- * @prop {import("tapable".AsyncParallelHook)} ready
  */
 
 /**
@@ -234,16 +224,6 @@ export default class {
        */
       this.secureServer = createSecureServer(this.koa.callback())
     }
-    /**
-     * @type {Hooks}
-     */
-    this.hooks = {
-      init: new AsyncParallelHook(["core"]),
-      ready: new AsyncParallelHook(["core"]),
-    }
-    if (this.hasDatabase) {
-      this.hooks.addModels = new SyncHook(["registerModel"])
-    }
   }
 
   /**
@@ -278,28 +258,47 @@ export default class {
   }
 
   /**
+   * @param {string} memberName
+   * @param {...*} args
+   * @return {Promise<Object>}
+   */
+  async callPlugins(memberName, ...args) {
+    const pluginEntries = Object.entries(this.plugins)
+    const filteredEntries = pluginEntries.filter(entry => {
+      const instance = entry[1]
+      return instance.hasOwnProperty(memberName)
+    })
+    if (filteredEntries.length === 0) {
+      return
+    }
+    const startTime = Date.now()
+    const results = {}
+    const jobs = filteredEntries.map(async ([name, instance]) => {
+      const member = instance[memberName]
+      const result = typeof member === "function" ? member.apply(instance, args) : member
+      results[name] = await result
+    })
+    await Promise.all(jobs)
+    this.logger.info("Called %s in %s on: %s", memberName, readableMs(Date.now() - startTime), Object.keys(filteredEntries).join(", "))
+    return results
+  }
+
+  /**
    * @param {Object} [plugins={}]
    * @returns {Promise<void>}
    */
   async init(plugins = {}) {
     try {
       /**
+       * @type {boolean}
+       */
+      this.hasPlugins = Object.keys(plugins).length > 0
+      /**
        * @type {Object}
        */
       this.plugins = mapObject(plugins, (key, value) => {
         return [key, isClass(value) ? new value(this) : value]
       })
-      /**
-       * @type {boolean}
-       */
-      this.hasPlugins = Object.keys(this.plugins).length > 0
-      for (const [pluginName, plugin] of Object.entries(this.plugins)) {
-        for (const {hookName, tapFunction} of hookMapping) {
-          if (plugin[hookName]) {
-            this.hooks[hookName][tapFunction](pluginName, plugin[hookName])
-          }
-        }
-      }
       if (this.hasDatabase) {
         if (this.database.options.dialect === "postgres") {
           try {
@@ -316,14 +315,19 @@ export default class {
             this.logger.error("Could not create database %s: %s", this.database.options.database, error)
           }
         }
-        this.hooks.addModels.call(this.registerModel.bind(this))
+        await this.database.authenticate()
+        const modelMaps = await this.callPlugins("collectModels")
+        if (modelMaps) {
+          const modelDefinitions = {}
+          Object.assign(modelDefinitions, ...modelMaps)
+          for (const [name, modelDefinition] of Object.entries(modelDefinitions |> sortKeys)) {
+            this.registerModel(name, modelDefinition)
+          }
+        }
         const models = Object.values(this.database.models)
         if (models.length === 0) {
-          this.logger.warn("No models have been registered")
-          await this.database.authenticate()
+          this.logger.warn("No models have been registered, that's weird")
         } else {
-          this.logger.info("%s added %s to the database", plural("plugin", this.hooks.addModels.taps.length), plural("model", models.length))
-          await this.database.authenticate()
           const modelsWithAssociate = models.filter(model => model.associate)
           if (modelsWithAssociate.length > 0) {
             for (const model of modelsWithAssociate) {
@@ -346,12 +350,7 @@ export default class {
           }
         }
       }
-      const initTapCount = this.hooks.init.taps?.length || 0
-      if (initTapCount > 0) {
-        const startTime = Date.now()
-        await this.hooks.init.promise(this)
-        this.logger.info("Executed init tap for %s in %s", plural("plugin", initTapCount), readableMs(Date.now() - startTime))
-      }
+      await this.callPlugins("init")
       if (this.hasInsecureServer) {
         this.insecureServer.listen(this.config.insecurePort)
         this.logger.info("Started insecure server on port %s", this.config.insecurePort)
@@ -371,12 +370,7 @@ export default class {
           this.logger.debug("Called start on %s in %s", plural("model", modelsWithStart.length), readableMs(Date.now() - startTime))
         }
       }
-      const readyTapCount = this.hooks.ready.taps?.length || 0
-      if (readyTapCount > 0) {
-        const startTime = Date.now()
-        await this.hooks.ready.promise(this)
-        this.logger.info("Executed ready tap for %s in %s", plural("plugin", readyTapCount), readableMs(Date.now() - startTime))
-      }
+      await this.callPlugins("ready")
       this.logger.info("Ready after %s", readableMs(Date.now() - this.startTime.getTime()))
     } catch (error) {
       this.logger.error("Could not initialize: %s", error)
