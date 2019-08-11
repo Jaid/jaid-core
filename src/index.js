@@ -369,13 +369,13 @@ export default class {
           this.logger.debug("Called start on %s in %s", plural("model", modelsWithStart.length), readableMs(Date.now() - startTime))
         }
       }
-      this.logger.info("Ready after %s ms", Date.now() - this.startTime.getTime())
       const readyTapCount = this.hooks.ready.taps?.length || 0
       if (readyTapCount > 0) {
         const startTime = Date.now()
         await this.hooks.ready.promise(this)
         this.logger.info("Executed ready tap for %s in %s", plural("plugin", readyTapCount), readableMs(Date.now() - startTime))
       }
+      this.logger.info("Ready after %s", readableMs(Date.now() - this.startTime.getTime()))
     } catch (error) {
       this.logger.error("Could not initialize: %s", error)
       throw error
