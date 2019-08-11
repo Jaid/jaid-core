@@ -12,6 +12,7 @@ import pify from "pify"
 import isClass from "is-class"
 import mapObject from "map-obj"
 import readableMs from "readable-ms"
+import plural from "pluralize-inclusive"
 
 import hookMapping from "./hooks.yml"
 
@@ -120,8 +121,8 @@ export default class {
     if (options.configSetup.defaults === undefined) {
       options.configSetup.defaults = {}
     }
-    if (options.configSetup.sensitiveKeys === undefined) {
-      options.configSetup.sensitiveKeys = []
+    if (options.configSetup.secretKeys === undefined) {
+      options.configSetup.secretKeys = []
     }
     if (this.hasDatabase) {
       Object.assign(options.configSetup.defaults, {
@@ -132,7 +133,7 @@ export default class {
         databaseSchemaSync: "alter",
         timezone: "Europe/Berlin",
       })
-      options.configSetup.sensitiveKeys.push("databasePassword")
+      options.configSetup.secretKeys.push("databasePassword")
     }
     if (this.hasInsecureServer) {
       Object.assign(options.configSetup.defaults, {
@@ -144,18 +145,16 @@ export default class {
         securePort: options.securePort,
       })
     }
-    const configResult = essentialConfig(this.appPath, options.configSetup)
-    if (!configResult.config) {
-      this.logger.warn("Set up default config at %s, please edit and restart!", configResult.configFile)
-      process.exit(2)
-    }
-    if (configResult.newKeys |> hasContent) {
-      this.logger.info("Added new keys to config file %s: %s", configResult.configFile, configResult.newKeys.join(", "))
-    }
     /**
-     * @type {string}
+     * @type {import("essential-config").Result}
      */
-    this.configFile = configResult.configFile
+    const configResult = essentialConfig(this.appPath, options.configSetup)
+    if (configResult.newKeys |> hasContent) {
+      this.logger.info("Added %s to config: %s", plural("new key", configResult.newKeys.length), configResult.newKeys.join(", "))
+    }
+    if (configResult.deprecatedKeys |> hasContent) {
+      this.logger.warn("Config contains %s: %s", plural("no longer needed key", configResult.deprecatedKeys.length), configResult.deprecatedKeys.join(", "))
+    }
     /**
      * @type {BaseConfig}
      */

@@ -16,6 +16,7 @@
     "lodash": "^4.17.15",
     "map-obj": "^4.1.0",
     "pify": "^4.0.1",
+    "pluralize-inclusive": "^1.0.0",
     "readable-ms": "^1.0.0",
     "sort-keys": "^3.0.0",
     "tapable": "^1.1.3"
