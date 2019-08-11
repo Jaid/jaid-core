@@ -34,7 +34,7 @@ import hookMapping from "./hooks.yml"
  */
 
 /**
- * @typedef {Object<string, *>} BaseConfig
+ * @typedef {Object} BaseConfig
  * @prop {string} databaseName
  * @prop {string} databaseUser
  * @prop {string} databaseHost
@@ -53,7 +53,7 @@ import hookMapping from "./hooks.yml"
  */
 
 /**
- * @typedef {Object<string, *>} Hooks
+ * @typedef {Object} Hooks
  * @prop {import("tapable").AsyncParallelHook} init
  * @prop {import("tapable").SyncHook} addModels
  * @prop {import("tapable".AsyncParallelHook)} ready
@@ -276,13 +276,13 @@ export default class {
   }
 
   /**
-   * @param {Object<string, Object>} [plugins={}]
+   * @param {Object} [plugins={}]
    * @returns {Promise<void>}
    */
   async init(plugins = {}) {
     try {
       /**
-       * @type {Object<string, Object>}
+       * @type {Object}
        */
       this.plugins = mapObject(plugins, (key, value) => {
         return [key, isClass(value) ? new value(this) : value]
