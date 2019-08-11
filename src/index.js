@@ -150,10 +150,10 @@ export default class {
      */
     const configResult = essentialConfig(this.appPath, options.configSetup)
     if (configResult.newKeys |> hasContent) {
-      this.logger.info("Added %s to config: %s", plural("new key", configResult.newKeys.length), configResult.newKeys.join(", "))
+      this.logger.info("Added %s to config: %s", plural("new entry", configResult.newKeys.length), configResult.newKeys.join(", "))
     }
     if (configResult.deprecatedKeys |> hasContent) {
-      this.logger.warn("Config contains %s: %s", plural("no longer needed key", configResult.deprecatedKeys.length), configResult.deprecatedKeys.join(", "))
+      this.logger.warn("Config contains %s: %s", plural("no longer needed entry", configResult.deprecatedKeys.length), configResult.deprecatedKeys.join(", "))
     }
     /**
      * @type {BaseConfig}
@@ -320,14 +320,14 @@ export default class {
           this.logger.warn("No models have been registered")
           await this.database.authenticate()
         } else {
-          this.logger.info("%s plugins added %s models to the database", this.hooks.addModels.taps.length, models.length)
+          this.logger.info("%s added %s to the database", plural("plugin", this.hooks.addModels.taps.length), plural("model", models.length))
           await this.database.authenticate()
           const modelsWithAssociate = models.filter(model => model.associate)
           if (modelsWithAssociate.length > 0) {
             for (const model of modelsWithAssociate) {
               model.associate(this.database.models)
             }
-            this.logger.debug("Called associate on %s models", modelsWithAssociate.length)
+            this.logger.debug("Called associate on %s", plural("model", modelsWithAssociate.length))
           }
           if (this.config.databaseSchemaSync === "sync") {
             await this.database.sync()
@@ -348,7 +348,7 @@ export default class {
       if (initTapCount > 0) {
         const startTime = Date.now()
         await this.hooks.init.promise(this)
-        this.logger.info("Executed init tap for %s plugins in %s", initTapCount, readableMs(Date.now() - startTime))
+        this.logger.info("Executed init tap for %s in %s", plural("plugin", initTapCount), readableMs(Date.now() - startTime))
       }
       if (this.hasInsecureServer) {
         this.insecureServer.listen(this.config.insecurePort)
@@ -366,7 +366,7 @@ export default class {
             await model.start()
           })
           await Promise.all(startJobs)
-          this.logger.debug("Called start on %s models in %s", modelsWithStart.length, readableMs(Date.now() - startTime))
+          this.logger.debug("Called start on %s in %s", plural("model", modelsWithStart.length), readableMs(Date.now() - startTime))
         }
       }
       this.logger.info("Ready after %s ms", Date.now() - this.startTime.getTime())
@@ -374,7 +374,7 @@ export default class {
       if (readyTapCount > 0) {
         const startTime = Date.now()
         await this.hooks.ready.promise(this)
-        this.logger.info("Executed ready tap for %s plugins in %s", readyTapCount, readableMs(Date.now() - startTime))
+        this.logger.info("Executed ready tap for %s in %s", plural("plugin", readyTapCount), readableMs(Date.now() - startTime))
       }
     } catch (error) {
       this.logger.error("Could not initialize: %s", error)
