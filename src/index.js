@@ -294,7 +294,7 @@ export default class {
       return instance[memberName] !== undefined
     })
     if (filteredEntries.length === 0) {
-      return
+      return {}
     }
     const startTime = Date.now()
     const results = {}
