@@ -1,5 +1,7 @@
 /** @module jaid-core */
 
+import path from "path"
+
 import jaidLogger from "jaid-logger"
 import camelCase from "camelcase"
 import essentialConfig from "essential-config"
@@ -12,6 +14,7 @@ import isClass from "is-class"
 import mapObject from "map-obj"
 import readableMs from "readable-ms"
 import plural from "pluralize-inclusive"
+import ensureEnd from "ensure-end"
 
 /**
  * @typedef {Object} Options
@@ -28,6 +31,7 @@ import plural from "pluralize-inclusive"
  * @prop {"error"|"warn"|"info"|"debug"|"silly"} [databaseLogLevel="debug"]
  * @prop {"error"|"warn"|"info"|"debug"|"silly"} [gotLogLevel="debug"]
  * @prop {boolean} [useGot=true]
+ * @prop {boolean} [sqlite=false]
  */
 
 /**
@@ -41,6 +45,7 @@ import plural from "pluralize-inclusive"
  * @prop {string} timezone
  * @prop {number} insecurePort
  * @prop {number} securePort
+ * @prop {string} databasePath
  */
 
 /**
@@ -71,12 +76,13 @@ export default class {
       gotLogLevel: "debug",
       configSetup: {},
       useGot: true,
+      sqlite: false,
       ...options,
     }
     /**
      * @type {boolean}
      */
-    this.hasDatabase = Boolean(options.database)
+    this.hasDatabase = Boolean(options.database || options.sqlite)
     /**
      * @type {boolean}
      */
@@ -116,16 +122,25 @@ export default class {
       options.configSetup.secretKeys = []
     }
     if (this.hasDatabase) {
-      Object.assign(options.configSetup.defaults, {
-        databaseName: isString(options.database) ? options.database : this.camelName,
-        databaseUser: "postgres",
-        databaseDialect: "postgres",
-        databaseHost: "localhost",
-        databasePort: 5432,
-        databaseSchemaSync: "alter",
-        timezone: "Europe/Berlin",
-      })
-      options.configSetup.secretKeys.push("databasePassword")
+      if (options.sqlite) {
+        const sqliteName = ensureEnd(isString(options.sqlite) ? options.database : "database", ".sqlite")
+        const databasePath = path.join(this.appFolder, sqliteName)
+        Object.assign(options.configSetup.defaults, {
+          databasePath,
+          timezone: "Europe/Berlin",
+        })
+      } else {
+        Object.assign(options.configSetup.defaults, {
+          databaseName: isString(options.database) ? options.database : this.camelName,
+          databaseUser: "postgres",
+          databaseDialect: "postgres",
+          databaseHost: "localhost",
+          databasePort: 5432,
+          databaseSchemaSync: "alter",
+          timezone: "Europe/Berlin",
+        })
+        options.configSetup.secretKeys.push("databasePassword")
+      }
     }
     if (this.hasInsecureServer) {
       Object.assign(options.configSetup.defaults, {
@@ -153,21 +168,32 @@ export default class {
     this.config = configResult.config
     if (this.hasDatabase) {
       const Sequelize = __non_webpack_require__("sequelize")
+      const sequelizeOptions = {}
+      if (options.sqlite) {
+        Object.assign(sequelizeOptions, {
+          dialect: "sqlite",
+          storage: this.config.databasePath,
+        })
+      } else {
+        Object.assign(sequelizeOptions, {
+          dialect: this.config.databaseDialect,
+          host: this.config.databaseHost,
+          port: this.config.databasePort,
+          database: this.config.databaseName,
+          username: this.config.databaseUser,
+          password: this.config.databasePassword,
+        })
+      }
       /**
        * @type {import("sequelize").Sequelize}
        */
       this.database = new Sequelize({
-        dialect: this.config.databaseDialect,
-        host: this.config.databaseHost,
-        port: this.config.databasePort,
-        database: this.config.databaseName,
-        username: this.config.databaseUser,
-        password: this.config.databasePassword,
         timezone: this.config.timezone,
         benchmark: true,
         logging: line => {
           this.logger.log(options.databaseLogLevel, line)
         },
+        ...sequelizeOptions,
         ...options.sequelizeOptions,
       })
     }

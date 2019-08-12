@@ -18,6 +18,11 @@ it("should run", async () => {
     serverLogLevel: "info",
     databaseLogLevel: "info",
     gotLogLevel: "info",
+    database: true,
+    sqlite: true,
+    configSetup: {
+      databaseDialect: "sqlite",
+    },
   })
   expect(core.got).toBeTruthy()
   expect(typeof core.got.get === "function").toBeTruthy()
