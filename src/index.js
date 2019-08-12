@@ -127,7 +127,7 @@ export default class {
         const databasePath = path.join(this.appFolder, sqliteName)
         Object.assign(options.configSetup.defaults, {
           databasePath,
-          timezone: "Europe/Berlin",
+          databaseSchemaSync: "alter",
         })
       } else {
         Object.assign(options.configSetup.defaults, {
@@ -136,7 +136,6 @@ export default class {
           databaseDialect: "postgres",
           databaseHost: "localhost",
           databasePort: 5432,
-          databaseSchemaSync: "alter",
           timezone: "Europe/Berlin",
         })
         options.configSetup.secretKeys.push("databasePassword")
@@ -182,13 +181,13 @@ export default class {
           database: this.config.databaseName,
           username: this.config.databaseUser,
           password: this.config.databasePassword,
+          timezone: this.config.timezone,
         })
       }
       /**
        * @type {import("sequelize").Sequelize}
        */
       this.database = new Sequelize({
-        timezone: this.config.timezone,
         benchmark: true,
         logging: line => {
           this.logger.log(options.databaseLogLevel, line)
