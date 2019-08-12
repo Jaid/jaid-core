@@ -24,9 +24,9 @@
     "sequelize": "^5.13.1"
   },
   "devDependencies": {
-    "acorn": "^6.2.1",
+    "acorn": "^6.3.0",
     "babel-jest": "^24.8.0",
-    "babel-preset-jaid": "^6.8.2",
+    "babel-preset-jaid": "^6.9.0",
     "browserslist-config-jaid-node": "^2.2.1",
     "eslint": "^6.1.0",
     "eslint-config-jaid": "^1.28.0",
