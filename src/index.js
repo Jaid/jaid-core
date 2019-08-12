@@ -319,7 +319,7 @@ export default class {
         const modelMaps = await this.callPlugins("collectModels")
         if (modelMaps) {
           const modelDefinitions = {}
-          Object.assign(modelDefinitions, ...modelMaps)
+          Object.assign(modelDefinitions, ...Object.values(modelMaps))
           for (const [name, modelDefinition] of Object.entries(modelDefinitions |> sortKeys)) {
             this.registerModel(name, modelDefinition)
           }
