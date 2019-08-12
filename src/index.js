@@ -266,7 +266,7 @@ export default class {
     const pluginEntries = Object.entries(this.plugins)
     const filteredEntries = pluginEntries.filter(entry => {
       const instance = entry[1]
-      return instance.hasOwnProperty(memberName)
+      return instance[memberName] !== undefined
     })
     if (filteredEntries.length === 0) {
       return
