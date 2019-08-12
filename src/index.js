@@ -279,7 +279,7 @@ export default class {
       results[name] = await result
     })
     await Promise.all(jobs)
-    this.logger.info("Called %s in %s on: %s", memberName, readableMs(Date.now() - startTime), Object.keys(filteredEntries).join(", "))
+    this.logger.info("Called %s in %s on: %s", memberName, readableMs(Date.now() - startTime), filteredEntries.map(([name]) => name).join(", "))
     return results
   }
 
