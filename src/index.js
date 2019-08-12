@@ -75,7 +75,7 @@ export default class {
       databaseLogLevel: "debug",
       gotLogLevel: "debug",
       configSetup: {},
-      useGot: true,
+      useGot: false,
       sqlite: false,
       ...options,
     }
