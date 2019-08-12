@@ -2,6 +2,10 @@ import path from "path"
 
 import Sequelize from "sequelize"
 import ms from "ms.macro"
+import socketIo from "socket.io"
+import socketIoClient from "socket.io-client"
+import delay from "delay"
+import {router} from "fast-koa-router"
 
 const indexModule = (process.env.MAIN ? path.resolve(process.env.MAIN) : path.join(__dirname, "..", "src")) |> require
 
@@ -28,12 +32,17 @@ it("should run", async () => {
   expect(core.got).toBeTruthy()
   expect(typeof core.got.get === "function").toBeTruthy()
   let requestReceived = false
-  core.koa.use(async context => {
-    requestReceived = true
-    context.body = "hi"
-  })
+  core.koa.use(router({
+    get: {
+      "/": async context => {
+        requestReceived = true
+        context.body = "hi"
+      },
+    },
+  }))
   let pluginCalled = false
   let modelCalled = false
+  let receivedKey = null
   const modelDefinition = {
     default: class extends Sequelize.Model {
 
@@ -74,11 +83,30 @@ it("should run", async () => {
     }
 
   }
+  const socketPluginClass = class {
+
+    async init() {
+      this.socketServer = socketIo(core.insecureServer)
+      this.socketServer.on("connection", client => {
+        receivedKey = client.handshake.query.key
+        core.logger.info("Client has connected!")
+        this.client = client
+      })
+    }
+
+    close() {
+      if (this.client) {
+        this.client.disconnect()
+      }
+    }
+
+  }
   await core.init({
     main: mainPluginClass,
     removeMe: removePluginClass,
+    socketServer: socketPluginClass,
   })
-  expect(Object.keys(core.plugins).length).toBe(1)
+  expect(Object.keys(core.plugins).length).toBe(2)
   expect(pluginCalled).toBe(true)
   expect(modelCalled).toBe(true)
   core.logger.info("App folder: %s", core.appFolder)
@@ -107,5 +135,14 @@ it("should run", async () => {
     attributes: ["color"],
   })
   expect(aki.color).toBe("grey")
+  const socketClient = socketIoClient(`http://localhost:${port}`, {
+    query: {
+      key: "mykey",
+    },
+  })
+  await delay(ms`1 second`)
+  expect(socketClient.connected).toBe(true)
+  expect(receivedKey).toBe("mykey")
+  socketClient.close()
   await core.close()
 }, ms`10 seconds`)

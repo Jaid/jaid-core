@@ -267,6 +267,7 @@ export default class {
    * @returns {Promise<void>}
    */
   async close() {
+    await this.callPlugins("close")
     const closeJobs = []
     if (this.hasInsecureServer) {
       const close = pify(this.insecureServer.close.bind(this.insecureServer))
