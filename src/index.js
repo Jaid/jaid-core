@@ -309,6 +309,29 @@ export default class {
   }
 
   /**
+   * @param {string} memberName
+   * @param {...*} args
+   * @return {Promise<void>}
+   */
+  async callAndRemovePlugins(memberName, ...args) {
+    const results = await this.callPlugins(memberName, ...args)
+    const entriesToRemove = Object.entries(results).filter(entry => {
+      const result = entry[1]
+      if (result === false) {
+        return true
+      }
+      return false
+    })
+    if (entriesToRemove.length === 0) {
+      return
+    }
+    for (const [name] of entriesToRemove) {
+      delete this.plugins[name]
+    }
+    this.logger.info("%s wanted to be removed", plural("plugin", entriesToRemove.length))
+  }
+
+  /**
    * @param {Object} [plugins={}]
    * @returns {Promise<void>}
    */
@@ -324,6 +347,7 @@ export default class {
       this.plugins = mapObject(plugins, (key, value) => {
         return [key, isClass(value) ? new value(this) : value]
       })
+      await this.callAndRemovePlugins("preInit")
       if (this.hasDatabase) {
         if (this.database.options.dialect === "postgres") {
           try {

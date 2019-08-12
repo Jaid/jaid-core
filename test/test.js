@@ -54,7 +54,14 @@ it("should run", async () => {
       },
     },
   }
-  const pluginClass = class {
+  const removePluginClass = class {
+
+    async preInit() {
+      return false
+    }
+
+  }
+  const mainPluginClass = class {
 
     async init() {
       pluginCalled = true
@@ -67,7 +74,11 @@ it("should run", async () => {
     }
 
   }
-  await core.init({main: pluginClass})
+  await core.init({
+    main: mainPluginClass,
+    removeMe: removePluginClass,
+  })
+  expect(Object.keys(core.plugins).length).toBe(1)
   expect(pluginCalled).toBe(true)
   expect(modelCalled).toBe(true)
   core.logger.info("App folder: %s", core.appFolder)
