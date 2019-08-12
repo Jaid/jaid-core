@@ -419,6 +419,7 @@ export default class {
           this.logger.debug("Called start on %s in %s", plural("model", modelsWithStart.length), readableMs(Date.now() - startTime))
         }
       }
+      await this.callAndRemovePlugins("postInit")
       await this.callPlugins("ready")
       this.logger.info("Ready after %s", readableMs(Date.now() - this.startTime.getTime()))
     } catch (error) {
