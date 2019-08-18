@@ -22,7 +22,7 @@
     "sort-keys": "^4.0.0"
   },
   "peerDependencies": {
-    "sequelize": "^5.15.0"
+    "sequelize": "^5.15.1"
   },
   "devDependencies": {
     "acorn": "^7.0.0",
@@ -37,7 +37,7 @@
     "jest": "^24.9.0",
     "koa-socket-2": "^1.2.0",
     "rimraf": "^3.0.0",
-    "sequelize": "^5.15.0",
+    "sequelize": "^5.15.1",
     "socket.io": "^2.2.0",
     "socket.io-client": "^2.2.0",
     "sqlite3": "^4.1.0",
