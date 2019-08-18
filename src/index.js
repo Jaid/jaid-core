@@ -122,12 +122,14 @@ export default class {
       options.configSetup.secretKeys = []
     }
     if (this.hasDatabase) {
+      Object.assign(options.configSetup.defaults, {
+        databaseSchemaSync: "alter",
+      })
       if (options.sqlite) {
         const sqliteName = ensureEnd(isString(options.sqlite) ? options.database : "database", ".sqlite")
         const databasePath = path.join(this.appFolder, sqliteName)
         Object.assign(options.configSetup.defaults, {
           databasePath,
-          databaseSchemaSync: "alter",
         })
       } else {
         Object.assign(options.configSetup.defaults, {
