@@ -66,14 +66,18 @@ export default class {
    */
   constructor(options) {
     /**
+     * @type {string}
+     */
+    this.defaultLogLevel = process.env.JAID_CORE_LOG_LEVEL || "debug"
+    /**
      * @type {Date}
      */
     this.startTime = new Date()
     options = {
       http2: false,
-      serverLogLevel: "debug",
-      databaseLogLevel: "debug",
-      gotLogLevel: "debug",
+      serverLogLevel: this.defaultLogLevel,
+      databaseLogLevel: this.defaultLogLevel,
+      gotLogLevel: this.defaultLogLevel,
       configSetup: {},
       useGot: false,
       sqlite: false,
