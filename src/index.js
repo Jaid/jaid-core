@@ -13,7 +13,7 @@ import pify from "pify"
 import isClass from "is-class"
 import mapObject from "map-obj"
 import readableMs from "readable-ms"
-import plural from "pluralize-inclusive"
+import zahl from "zahl"
 import ensureEnd from "ensure-end"
 
 /**
@@ -158,10 +158,10 @@ export default class {
      */
     const configResult = essentialConfig(this.appPath, options.configSetup)
     if (configResult.newKeys |> hasContent) {
-      this.logger.info("Added %s to config: %s", plural("new entry", configResult.newKeys.length), configResult.newKeys.join(", "))
+      this.logger.info("Added %s to config: %s", zahl(configResult.newKeys, "new entry"), configResult.newKeys.join(", "))
     }
     if (configResult.deprecatedKeys |> hasContent) {
-      this.logger.warn("Config contains %s: %s", plural("no longer needed entry", configResult.deprecatedKeys.length), configResult.deprecatedKeys.join(", "))
+      this.logger.warn("Config contains %s: %s", zahl(configResult.deprecatedKeys, "no longer needed entry"), configResult.deprecatedKeys.join(", "))
     }
     /**
      * @type {BaseConfig}
@@ -331,7 +331,7 @@ export default class {
     for (const [name] of entriesToRemove) {
       delete this.plugins[name]
     }
-    this.logger.info("%s wanted to be removed", plural("plugin", entriesToRemove.length))
+    this.logger.info("%s wanted to be removed", zahl(entriesToRemove, "plugin"))
   }
 
   /**
@@ -385,7 +385,7 @@ export default class {
             for (const model of modelsWithAssociate) {
               model.associate(this.database.models)
             }
-            this.logger.debug("Called associate on %s", plural("model", modelsWithAssociate.length))
+            this.logger.debug("Called associate on %s", zahl(modelsWithAssociate, "model"))
           }
           if (this.config.databaseSchemaSync === "sync") {
             await this.database.sync()
@@ -419,7 +419,7 @@ export default class {
             await model.start()
           })
           await Promise.all(startJobs)
-          this.logger.debug("Called start on %s in %s", plural("model", modelsWithStart.length), readableMs(Date.now() - startTime))
+          this.logger.debug("Called start on %s in %s", zahl(modelsWithStart, "model"), readableMs(Date.now() - startTime))
         }
       }
       await this.callAndRemovePlugins("postInit")
