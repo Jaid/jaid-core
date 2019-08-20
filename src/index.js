@@ -123,7 +123,7 @@ export default class {
     }
     if (this.hasDatabase) {
       Object.assign(options.configSetup.defaults, {
-        databaseSchemaSync: "alter",
+        databaseSchemaSync: "sync",
       })
       if (options.sqlite) {
         const sqliteName = ensureEnd(isString(options.sqlite) ? options.database : "database", ".sqlite")
