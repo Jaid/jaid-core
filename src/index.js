@@ -32,6 +32,7 @@ import ensureEnd from "ensure-end"
  * @prop {"error"|"warn"|"info"|"debug"|"silly"} [gotLogLevel="debug"]
  * @prop {boolean} [useGot=true]
  * @prop {boolean} [sqlite=false]
+ * @prop {string[]|string|false} [databaseExtensions=false]
  */
 
 /**
@@ -81,6 +82,7 @@ export default class {
       configSetup: {},
       useGot: false,
       sqlite: false,
+      databaseExtenions: false,
       ...options,
     }
     /**
@@ -119,6 +121,10 @@ export default class {
      * @type {string}
      */
     this.logFolder = this.logger.logFolder
+    /**
+     * @type {string[]}
+     */
+    this.databaseExtensions = options.databaseExtensions ? ensureArray(options.databaseExtensions) : null
     if (options.configSetup.defaults === undefined) {
       options.configSetup.defaults = {}
     }
@@ -369,6 +375,11 @@ export default class {
             this.logger.info("Ensured existence of database %s at %s:%s", this.database.options.database, this.database.options.host, this.database.options.port)
           } catch (error) {
             this.logger.error("Could not create database %s: %s", this.database.options.database, error)
+          }
+          if (this.databaseExtensions |> hasContent) {
+            const query = this.databaseExtensions.map(extension => `CREATE EXTENSION IF NOT EXISTS ${extension};`).join(" ")
+            await this.database.query(query)
+            this.logger.info("Ensured existence of %s", zahl(this.databaseExtensions, "database extension"))
           }
         }
         await this.database.authenticate()
