@@ -21,7 +21,7 @@
     "sort-keys": "^4.0.0",
     "zahl": "^2.0.0"
   },
-  "peerDependencies": {
+  "optionalDependencies": {
     "sequelize": "^5.16.0"
   },
   "devDependencies": {
