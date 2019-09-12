@@ -5,7 +5,7 @@ import path from "path"
 import jaidLogger from "jaid-logger"
 import camelCase from "camelcase"
 import essentialConfig from "essential-config"
-import hasContent from "has-content"
+import hasContent, {isEmpty} from "has-content"
 import {isString} from "lodash"
 import ensureArray from "ensure-array"
 import sortKeys from "sort-keys"
@@ -35,7 +35,6 @@ import preventStart from "prevent-start"
  * @prop {boolean} [sqlite=false]
  * @prop {string[]|string|false} [databaseExtensions=false]
  * @prop {boolean|Object} [koaSession]
- * @prop {string[]|string} [koaKeys]
  */
 
 /**
@@ -50,6 +49,7 @@ import preventStart from "prevent-start"
  * @prop {number} insecurePort
  * @prop {number} securePort
  * @prop {string} databasePath
+ * @prop {string[]|string} koaKeys
  */
 
 /**
@@ -168,6 +168,9 @@ export default class {
         securePort: options.securePort,
       })
     }
+    if (this.hasServer && options.koaSession) {
+      options.configSetup.secretKeys.push("koaKeys")
+    }
     /**
      * @type {import("essential-config").Result}
      */
@@ -230,8 +233,16 @@ export default class {
         context.set("X-Response-Time", Date.now() - startTime)
       })
       if (this.koaSession) {
+        if (isEmpty(this.config.koaKeys)) {
+          throw new Error("config.koaKeys is not set")
+        }
+        this.koa.keys = ensureArray(this.config.koaKeys)
+        const sessionConfig = {
+          ...options.koaSession || {},
+          signed: true,
+        }
         const koaSession = __non_webpack_require__("koa-session")
-        this.koa.use(koaSession())
+        this.koa.use(koaSession(sessionConfig, this.koa))
       }
     }
     if (options.useGot) {
