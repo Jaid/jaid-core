@@ -34,6 +34,8 @@ import preventStart from "prevent-start"
  * @prop {boolean} [useGot=true]
  * @prop {boolean} [sqlite=false]
  * @prop {string[]|string|false} [databaseExtensions=false]
+ * @prop {boolean|Object} [koaSession]
+ * @prop {string[]|string} [koaKeys]
  */
 
 /**
@@ -84,6 +86,8 @@ export default class {
       useGot: false,
       sqlite: false,
       databaseExtenions: false,
+      koaSession: false,
+      koaKeys: false,
       ...options,
     }
     /**
@@ -225,6 +229,10 @@ export default class {
         await next()
         context.set("X-Response-Time", Date.now() - startTime)
       })
+      if (this.koaSession) {
+        const koaSession = __non_webpack_require__("koa-session")
+        this.koa.use(koaSession())
+      }
     }
     if (options.useGot) {
       /**
