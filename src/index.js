@@ -15,6 +15,7 @@ import mapObject from "map-obj"
 import readableMs from "readable-ms"
 import zahl from "zahl"
 import ensureEnd from "ensure-end"
+import preventStart from "prevent-start"
 
 /**
  * @typedef {Object} Options
@@ -240,6 +241,10 @@ export default class {
         hooks: {
           afterResponse: [
             response => {
+              let displayedUrl = preventStart(response.requestUrl, "https://")
+              if (displayedUrl.length > 160) {
+                displayedUrl = `${displayedUrl.substr(0, 159)}…`
+              }
               this.logger.log(options.gotLogLevel, `[${response.statusCode} ${response.statusMessage} in ${readableMs(response.timings.phases.total)}] ▶︎ ${response.request.gotOptions.method} ${response.requestUrl}`)
               return response
             },

@@ -17,6 +17,7 @@
     "lodash": "^4.17.15",
     "map-obj": "^4.1.0",
     "pify": "^4.0.1",
+    "prevent-start": "^1.0.4",
     "readable-ms": "^1.0.0",
     "sort-keys": "^4.0.0",
     "zahl": "^2.0.1"
