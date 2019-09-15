@@ -211,16 +211,19 @@ export default class {
     if (this.hasServer && this.options.koaSession) {
       configSetup.secretKeys.push("koaKeys")
     }
-    if (hasContent(this.options.configSetup?.fields)) {
-      Object.assign(configSetup.fields, this.options.configSetup.fields)
-    }
-    if (hasContent(this.options.configSetup?.defaults)) {
-      Object.assign(configSetup.defaults, this.options.configSetup.defaults)
-    }
-    if (hasContent(this.options.configSetup?.secretKeys)) {
-      Array.prototype.push.apply(configSetup.secretKeys, this.options.configSetup.secretKeys)
-    }
     return configSetup
+  }
+
+  applyConfigSetup(additionalConfigSetup) {
+    if (hasContent(additionalConfigSetup?.fields)) {
+      Object.assign(this.configSetup.fields, additionalConfigSetup.fields)
+    }
+    if (hasContent(additionalConfigSetup?.defaults)) {
+      Object.assign(this.configSetup.defaults, additionalConfigSetup.defaults)
+    }
+    if (hasContent(additionalConfigSetup?.secretKeys)) {
+      Array.prototype.push.apply(this.configSetup.secretKeys, additionalConfigSetup.secretKeys)
+    }
   }
 
   /**
@@ -304,6 +307,15 @@ export default class {
     this.logger.info("%s wanted to be removed", zahl(entriesToRemove, "plugin"))
   }
 
+  async gatherConfigSetups() {
+    const configSetups = await this.callPlugins("getConfigSetup")
+    if (configSetups) {
+      for (const additionalConfigSetup of Object.values(configSetups)) {
+        this.applyConfigSetup(additionalConfigSetup)
+      }
+    }
+  }
+
   /**
    * @param {Object} [plugins={}]
    * @returns {Promise<void>}
@@ -311,11 +323,13 @@ export default class {
   async init(plugins = {}) {
     try {
       this.configSetup = this.getConfigSetup()
+      this.applyConfigSetup(this.options.configSetup)
       this.hasPlugins = Object.keys(plugins).length > 0
       this.plugins = mapObject(plugins, (key, value) => {
         return [key, isClass(value) ? new value(this) : value]
       })
       await this.callPlugins("setCoreReference", this)
+      await this.gatherConfigSetups()
       await this.callAndRemovePlugins("preInit")
       /**
        * @type {import("essential-config").Result}
