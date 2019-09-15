@@ -384,6 +384,7 @@ export default class {
       this.plugins = mapObject(plugins, (key, value) => {
         return [key, isClass(value) ? new value(this) : value]
       })
+      await this.callAndRemovePlugins("setCoreReference", this)
       await this.callAndRemovePlugins("preInit")
       if (this.hasDatabase) {
         if (this.database.options.dialect === "postgres") {
