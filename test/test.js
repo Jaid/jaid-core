@@ -29,17 +29,7 @@ it("should run", async () => {
     useGot: true,
     sqlite: true,
   })
-  expect(core.got).toBeTruthy()
-  expect(typeof core.got.get === "function").toBeTruthy()
   let requestReceived = false
-  core.koa.use(router({
-    get: {
-      "/": async context => {
-        requestReceived = true
-        context.body = "hi"
-      },
-    },
-  }))
   let pluginCalled = false
   let modelCalled = false
   let receivedKey = null
@@ -106,6 +96,16 @@ it("should run", async () => {
     removeMe: removePluginClass,
     socketServer: socketPluginClass,
   })
+  core.koa.use(router({
+    get: {
+      "/": async context => {
+        requestReceived = true
+        context.body = "hi"
+      },
+    },
+  }))
+  expect(core.got).toBeTruthy()
+  expect(typeof core.got.get === "function").toBeTruthy()
   expect(Object.keys(core.plugins).length).toBe(2)
   expect(pluginCalled).toBe(true)
   expect(modelCalled).toBe(true)

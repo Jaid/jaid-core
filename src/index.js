@@ -6,7 +6,6 @@ import jaidLogger from "jaid-logger"
 import camelCase from "camelcase"
 import essentialConfig from "essential-config"
 import hasContent, {isEmpty} from "has-content"
-import {isString} from "lodash"
 import ensureArray from "ensure-array"
 import sortKeys from "sort-keys"
 import pify from "pify"
@@ -14,8 +13,9 @@ import isClass from "is-class"
 import mapObject from "map-obj"
 import readableMs from "readable-ms"
 import zahl from "zahl"
-import ensureEnd from "ensure-end"
 import preventStart from "prevent-start"
+import {uniq, isString} from "lodash"
+import ensureEnd from "ensure-end"
 
 /**
  * @typedef {Object} Options
@@ -77,7 +77,7 @@ export default class {
      * @type {Date}
      */
     this.startTime = new Date()
-    options = {
+    this.options = {
       http2: false,
       serverLogLevel: this.defaultLogLevel,
       databaseLogLevel: this.defaultLogLevel,
@@ -93,15 +93,15 @@ export default class {
     /**
      * @type {boolean}
      */
-    this.hasDatabase = Boolean(options.database || options.sqlite)
+    this.hasDatabase = Boolean(this.options.database || this.options.sqlite)
     /**
      * @type {boolean}
      */
-    this.hasInsecureServer = Boolean(options.insecurePort)
+    this.hasInsecureServer = Boolean(this.options.insecurePort)
     /**
      * @type {boolean}
      */
-    this.hasSecureServer = Boolean(options.securePort)
+    this.hasSecureServer = Boolean(this.options.securePort)
     /**
      * @type {boolean}
      */
@@ -109,11 +109,11 @@ export default class {
     /**
      * @type {string}
      */
-    this.camelName = options.name |> camelCase
+    this.camelName = camelCase(this.options.name)
     /**
      * @type {string[]}
      */
-    this.appPath = [...ensureArray(options.folder), options.name]
+    this.appPath = [...ensureArray(this.options.folder), this.options.name]
     /**
      * @type {import("jaid-logger").JaidLogger}
      */
@@ -129,162 +129,98 @@ export default class {
     /**
      * @type {string[]}
      */
-    this.databaseExtensions = options.databaseExtensions ? ensureArray(options.databaseExtensions) : null
-    if (options.configSetup.defaults === undefined) {
-      options.configSetup.defaults = {}
-    }
-    if (options.configSetup.secretKeys === undefined) {
-      options.configSetup.secretKeys = []
+    this.databaseExtensions = uniq(ensureArray(this.options.databaseExtensions))
+    /**
+     * @type {BaseConfig}
+     */
+    this.config = null
+    /**
+     * @type {boolean}
+     */
+    this.hasPlugins = null
+    /**
+     * @type {Object}
+     */
+    this.plugins = null
+    /**
+     * @type {import("sequelize").Sequelize}
+     */
+    this.database = null
+    /**
+     * @type {import("koa")}
+     */
+    this.koa = null
+    /**
+     * @type {import("got").GotInstance}
+     */
+    this.got = null
+    /**
+     * @type {require("http2").Http2Server}
+     */
+    this.insecureServer = null
+    /**
+     * @type {require("http2").Http2SecureServer}
+     */
+    this.secureServer = null
+    /**
+     * @type {import("essential-config").Options}
+     */
+    this.configSetup = null
+  }
+
+  getConfigSetup() {
+    /**
+     * @type {import("essential-config").Options}
+     */
+    const configSetup = {
+      fields: {},
+      defaults: {},
+      secretKeys: [],
     }
     if (this.hasDatabase) {
-      Object.assign(options.configSetup.defaults, {
+      Object.assign(configSetup.defaults, {
         databaseSchemaSync: "sync",
       })
-      if (options.sqlite) {
-        const sqliteName = ensureEnd(isString(options.sqlite) ? options.database : "database", ".sqlite")
-        const databasePath = path.join(this.appFolder, sqliteName)
-        Object.assign(options.configSetup.defaults, {
-          databasePath,
+      if (this.options.sqlite) {
+        const sqliteName = ensureEnd(isString(this.options.database) ? this.options.database : "database", ".sqlite")
+        Object.assign(configSetup.defaults, {
+          databasePath: path.join(this.appFolder, sqliteName),
         })
       } else {
-        Object.assign(options.configSetup.defaults, {
-          databaseName: isString(options.database) ? options.database : this.camelName,
+        Object.assign(configSetup.defaults, {
+          databaseName: isString(this.options.database) ? this.options.database : this.camelName,
           databaseUser: "postgres",
           databaseDialect: "postgres",
           databaseHost: "localhost",
           databasePort: 5432,
           timezone: "Europe/Berlin",
         })
-        options.configSetup.secretKeys.push("databasePassword")
+        configSetup.secretKeys.push("databasePassword")
       }
     }
     if (this.hasInsecureServer) {
-      Object.assign(options.configSetup.defaults, {
-        insecurePort: options.insecurePort,
+      Object.assign(configSetup.defaults, {
+        insecurePort: this.options.insecurePort,
       })
     }
     if (this.hasSecureServer) {
-      Object.assign(options.configSetup.defaults, {
-        securePort: options.securePort,
+      Object.assign(configSetup.defaults, {
+        securePort: this.options.securePort,
       })
     }
-    if (this.hasServer && options.koaSession) {
-      options.configSetup.secretKeys.push("koaKeys")
+    if (this.hasServer && this.options.koaSession) {
+      configSetup.secretKeys.push("koaKeys")
     }
-    /**
-     * @type {import("essential-config").Result}
-     */
-    const configResult = essentialConfig(this.appPath, options.configSetup)
-    if (configResult.newKeys |> hasContent) {
-      this.logger.info("Added %s to config: %s", zahl(configResult.newKeys, "new entry"), configResult.newKeys.join(", "))
+    if (hasContent(this.options.configSetup?.fields)) {
+      Object.assign(configSetup.fields, this.options.configSetup.fields)
     }
-    if (configResult.deprecatedKeys |> hasContent) {
-      this.logger.warn("Config contains %s: %s", zahl(configResult.deprecatedKeys, "no longer needed entry"), configResult.deprecatedKeys.join(", "))
+    if (hasContent(this.options.configSetup?.defaults)) {
+      Object.assign(configSetup.defaults, this.options.configSetup.defaults)
     }
-    /**
-     * @type {BaseConfig}
-     */
-    this.config = configResult.config
-    if (this.hasDatabase) {
-      const Sequelize = __non_webpack_require__("sequelize")
-      const sequelizeOptions = {}
-      if (options.sqlite) {
-        Object.assign(sequelizeOptions, {
-          dialect: "sqlite",
-          storage: this.config.databasePath,
-        })
-      } else {
-        Object.assign(sequelizeOptions, {
-          dialect: this.config.databaseDialect,
-          host: this.config.databaseHost,
-          port: this.config.databasePort,
-          database: this.config.databaseName,
-          username: this.config.databaseUser,
-          password: this.config.databasePassword,
-          timezone: this.config.timezone,
-        })
-      }
-      /**
-       * @type {import("sequelize").Sequelize}
-       */
-      this.database = new Sequelize({
-        benchmark: true,
-        logging: line => {
-          this.logger.log(options.databaseLogLevel, line)
-        },
-        ...sequelizeOptions,
-        ...options.sequelizeOptions,
-      })
+    if (hasContent(this.options.configSetup?.secretKeys)) {
+      Array.prototype.push.apply(configSetup.secretKeys, this.options.configSetup.secretKeys)
     }
-    if (this.hasServer) {
-      const Koa = __non_webpack_require__("koa")
-      /**
-       * @type {import("koa")}
-       */
-      this.koa = new Koa()
-      this.koa.use(async (context, next) => {
-        await next()
-        const responseTime = context.response.get("X-Response-Time")
-        this.logger.log(options.serverLogLevel, "[%s %s in %s] ◀︎ %s %s", context.status, context.message, readableMs(responseTime), context.method, context.url)
-      })
-      this.koa.use(async (context, next) => {
-        const startTime = Date.now()
-        await next()
-        context.set("X-Response-Time", Date.now() - startTime)
-      })
-      if (this.koaSession) {
-        if (isEmpty(this.config.koaKeys)) {
-          throw new Error("config.koaKeys is not set")
-        }
-        this.koa.keys = ensureArray(this.config.koaKeys)
-        const sessionConfig = {
-          ...options.koaSession || {},
-          signed: true,
-        }
-        const koaSession = __non_webpack_require__("koa-session")
-        this.koa.use(koaSession(sessionConfig, this.koa))
-      }
-    }
-    if (options.useGot) {
-      /**
-       * @type {import("got")}
-       */
-      const got = __non_webpack_require__("got")
-      /**
-       * @type {import("got").GotInstance}
-       */
-      this.got = got.extend({
-        headers: {
-          "User-Agent": `${this.camelName}/${options.version}`,
-        },
-        hooks: {
-          afterResponse: [
-            response => {
-              let displayedUrl = preventStart(response.requestUrl, "https://")
-              if (displayedUrl.length > 160) {
-                displayedUrl = `${displayedUrl.substr(0, 159)}…`
-              }
-              this.logger.log(options.gotLogLevel, `[${response.statusCode} ${response.statusMessage} in ${readableMs(response.timings.phases.total)}] ▶︎ ${response.request.gotOptions.method} ${response.requestUrl}`)
-              return response
-            },
-          ],
-        },
-      })
-    }
-    if (this.hasInsecureServer) {
-      const {createServer} = __non_webpack_require__(options.http2 ? "http2" : "http")
-      /**
-       * @type {require("http2").Http2Server}
-       */
-      this.insecureServer = createServer(this.koa.callback())
-    }
-    if (this.hasSecureServer) {
-      const {createSecureServer} = __non_webpack_require__(options.http2 ? "http2" : "https")
-      /**
-       * @type {require("http2").Http2SecureServer}
-       */
-      this.secureServer = createSecureServer(this.koa.callback())
-    }
+    return configSetup
   }
 
   /**
@@ -374,18 +310,112 @@ export default class {
    */
   async init(plugins = {}) {
     try {
-      /**
-       * @type {boolean}
-       */
+      this.configSetup = this.getConfigSetup()
       this.hasPlugins = Object.keys(plugins).length > 0
-      /**
-       * @type {Object}
-       */
       this.plugins = mapObject(plugins, (key, value) => {
         return [key, isClass(value) ? new value(this) : value]
       })
       await this.callPlugins("setCoreReference", this)
       await this.callAndRemovePlugins("preInit")
+      /**
+       * @type {import("essential-config").Result}
+       */
+      const configResult = essentialConfig(this.appPath, this.configSetup)
+      if (configResult.newKeys |> hasContent) {
+        this.logger.info("Added %s to config: %s", zahl(configResult.newKeys, "new entry"), configResult.newKeys.join(", "))
+      }
+      if (configResult.deprecatedKeys |> hasContent) {
+        this.logger.warn("Config contains %s: %s", zahl(configResult.deprecatedKeys, "no longer needed entry"), configResult.deprecatedKeys.join(", "))
+      }
+      this.config = configResult.config
+      if (this.hasDatabase) {
+        const Sequelize = __non_webpack_require__("sequelize")
+        const sequelizeOptions = {}
+        if (this.options.sqlite) {
+          Object.assign(sequelizeOptions, {
+            dialect: "sqlite",
+            storage: this.config.databasePath,
+          })
+        } else {
+          Object.assign(sequelizeOptions, {
+            dialect: this.config.databaseDialect,
+            host: this.config.databaseHost,
+            port: this.config.databasePort,
+            database: this.config.databaseName,
+            username: this.config.databaseUser,
+            password: this.config.databasePassword,
+            timezone: this.config.timezone,
+          })
+        }
+        this.database = new Sequelize({
+          benchmark: true,
+          logging: line => {
+            this.logger.log(this.options.databaseLogLevel, line)
+          },
+          ...sequelizeOptions,
+          ...this.options.sequelizeOptions,
+        })
+      }
+      if (this.hasServer) {
+        const Koa = __non_webpack_require__("koa")
+        /**
+         * @type {import("koa")}
+         */
+        this.koa = new Koa()
+        this.koa.use(async (context, next) => {
+          await next()
+          const responseTime = context.response.get("X-Response-Time")
+          this.logger.log(this.options.serverLogLevel, "[%s %s in %s] ◀︎ %s %s", context.status, context.message, readableMs(responseTime), context.method, context.url)
+        })
+        this.koa.use(async (context, next) => {
+          const startTime = Date.now()
+          await next()
+          context.set("X-Response-Time", Date.now() - startTime)
+        })
+        if (this.koaSession) {
+          if (isEmpty(this.config.koaKeys)) {
+            throw new Error("config.koaKeys is not set")
+          }
+          this.koa.keys = ensureArray(this.config.koaKeys)
+          const sessionConfig = {
+            ...this.options.koaSession || {},
+            signed: true,
+          }
+          const koaSession = __non_webpack_require__("koa-session")
+          this.koa.use(koaSession(sessionConfig, this.koa))
+        }
+      }
+      if (this.options.useGot) {
+      /**
+       * @type {import("got")}
+       */
+        const got = __non_webpack_require__("got")
+        this.got = got.extend({
+          headers: {
+            "User-Agent": `${this.camelName}/${this.options.version}`,
+          },
+          hooks: {
+            afterResponse: [
+              response => {
+                let displayedUrl = preventStart(response.requestUrl, "https://")
+                if (displayedUrl.length > 160) {
+                  displayedUrl = `${displayedUrl.substr(0, 159)}…`
+                }
+                this.logger.log(this.options.gotLogLevel, `[${response.statusCode} ${response.statusMessage} in ${readableMs(response.timings.phases.total)}] ▶︎ ${response.request.gotOptions.method} ${response.requestUrl}`)
+                return response
+              },
+            ],
+          },
+        })
+      }
+      if (this.hasInsecureServer) {
+        const {createServer} = __non_webpack_require__(this.options.http2 ? "http2" : "http")
+        this.insecureServer = createServer(this.koa.callback())
+      }
+      if (this.hasSecureServer) {
+        const {createSecureServer} = __non_webpack_require__(this.options.http2 ? "http2" : "https")
+        this.secureServer = createSecureServer(this.koa.callback())
+      }
       if (this.hasDatabase) {
         if (this.database.options.dialect === "postgres") {
           try {
