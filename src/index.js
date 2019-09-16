@@ -10,7 +10,6 @@ import ensureArray from "ensure-array"
 import sortKeys from "sort-keys"
 import pify from "pify"
 import isClass from "is-class"
-import mapObject from "map-obj"
 import readableMs from "readable-ms"
 import zahl from "zahl"
 import preventStart from "prevent-start"
@@ -133,7 +132,7 @@ export default class {
     /**
      * @type {BaseConfig}
      */
-    this.config = null
+    this.config = {}
     /**
      * @type {boolean}
      */
@@ -141,7 +140,7 @@ export default class {
     /**
      * @type {Object}
      */
-    this.plugins = null
+    this.plugins = {}
     /**
      * @type {import("sequelize").Sequelize}
      */
@@ -324,10 +323,11 @@ export default class {
     try {
       this.configSetup = this.getConfigSetup()
       this.applyConfigSetup(this.options.configSetup)
-      this.hasPlugins = Object.keys(plugins).length > 0
-      this.plugins = mapObject(plugins, (key, value) => {
-        return [key, isClass(value) ? new value(this) : value]
-      })
+      const pluginEntries = Object.entries(plugins)
+      this.hasPlugins = pluginEntries.length > 0
+      for (const [key, value] of pluginEntries) {
+        this.plugins[key] = isClass(value) ? new value(this) : value
+      }
       await this.callPlugins("setCoreReference", this)
       await this.gatherConfigSetups()
       await this.callAndRemovePlugins("preInit")
@@ -341,7 +341,7 @@ export default class {
       if (configResult.deprecatedKeys |> hasContent) {
         this.logger.warn("Config contains %s: %s", zahl(configResult.deprecatedKeys, "no longer needed entry"), configResult.deprecatedKeys.join(", "))
       }
-      this.config = configResult.config
+      Object.assign(this.config, configResult.config)
       if (this.hasDatabase) {
         const Sequelize = __non_webpack_require__("sequelize")
         const sequelizeOptions = {}

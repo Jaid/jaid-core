@@ -14,7 +14,6 @@
     "is-class": "0.0.8",
     "jaid-logger": "^1.5.3",
     "lodash": "^4.17.15",
-    "map-obj": "^4.1.0",
     "pify": "^4.0.1",
     "prevent-start": "^1.0.4",
     "readable-ms": "^1.0.0",
