@@ -399,6 +399,7 @@ export default class {
           const koaSession = __non_webpack_require__("koa-session")
           this.koa.use(koaSession(sessionConfig, this.koa))
         }
+        await this.callPlugins("handleKoa", this.koa)
       }
       if (this.options.useGot) {
       /**
