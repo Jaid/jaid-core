@@ -342,6 +342,7 @@ export default class {
         this.logger.warn("Config contains %s: %s", zahl(configResult.deprecatedKeys, "no longer needed entry"), configResult.deprecatedKeys.join(", "))
       }
       Object.assign(this.config, configResult.config)
+      await this.callAndRemovePlugins("handleConfig")
       if (this.hasDatabase) {
         const Sequelize = __non_webpack_require__("sequelize")
         const sequelizeOptions = {}
@@ -486,7 +487,7 @@ export default class {
           }
         }
       }
-      await this.callPlugins("init")
+      await this.call("init")
       if (this.hasInsecureServer) {
         this.insecureServer.listen(this.config.insecurePort)
         this.logger.info("Started insecure server on port %s", this.config.insecurePort)
