@@ -423,6 +423,7 @@ export default class {
             ],
           },
         })
+        await this.callPlugin("handleGot", this.got)
       }
       if (this.hasInsecureServer) {
         const {createServer} = __non_webpack_require__(this.options.http2 ? "http2" : "http")

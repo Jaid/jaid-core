@@ -11,6 +11,7 @@ Name|Return value
 `preInit`|`boolean shouldRemovePlugin`
 `handleConfig(config)`|
 `handleKoa(koa)`|
+`handleGot(got)`|
 `collectModels`|`Object sequelizeModels`
 `init`|`boolean shouldRemovePlugin`
 `postInit`|`boolean shouldRemovePlugin`
