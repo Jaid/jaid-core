@@ -69,13 +69,17 @@ export default class {
    */
   constructor(options) {
     /**
+     * @type {Date}
+     */
+    this.startTime = new Date
+    /**
+     * @type {Set}
+     */
+    this.unusedPluginEvents = new Set
+    /**
      * @type {string}
      */
     this.defaultLogLevel = process.env.JAID_CORE_LOG_LEVEL || "debug"
-    /**
-     * @type {Date}
-     */
-    this.startTime = new Date()
     this.options = {
       http2: false,
       serverLogLevel: this.defaultLogLevel,
@@ -263,12 +267,16 @@ export default class {
    * @return {Promise<Object>}
    */
   async callPlugins(memberName, ...args) {
+    if (this.unusedPluginEvents.has(memberName)) {
+      return {}
+    }
     const pluginEntries = Object.entries(this.plugins)
     const filteredEntries = pluginEntries.filter(entry => {
       const instance = entry[1]
       return instance[memberName] !== undefined
     })
     if (filteredEntries.length === 0) {
+      this.unusedPluginEvents.add(memberName)
       return {}
     }
     const startTime = Date.now()
