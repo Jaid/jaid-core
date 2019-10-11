@@ -16,3 +16,4 @@ Name|Return value
 `init`|`boolean shouldRemovePlugin`
 `postInit`|`boolean shouldRemovePlugin`
 `ready`|
+`handleLog(level, fragments)`|

@@ -121,6 +121,14 @@ export default class {
      * @type {import("jaid-logger").JaidLogger}
      */
     this.logger = jaidLogger(this.appPath)
+    const tempLog = this.logger.log
+    this.logger.log = async (...args) => {
+      tempLog.apply(this.logger, args)
+      if (this.hasPlugins) {
+        const [level, ...fragments] = args
+        await this.callPlugins("handleLog", level, fragments)
+      }
+    }
     /**
      * @type {string}
      */
