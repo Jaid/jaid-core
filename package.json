@@ -1,7 +1,7 @@
 {
   "private": true,
   "webpackConfigJaid": "nodeClass",
-  "version": "5.4.0",
+  "version": "5.5.0",
   "author": "Jaid <jaid.jsx@gmail.com> (https://github.com/Jaid)",
   "dependencies": {
     "@babel/runtime": "^7.6.3",
