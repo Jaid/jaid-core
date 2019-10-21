@@ -319,7 +319,7 @@ export default class {
     for (const [name] of entriesToRemove) {
       delete this.plugins[name]
     }
-    this.logger.info("%s wanted to be removed", zahl(entriesToRemove, "plugin"))
+    this.logger.info("%s wanted to be removed: %s", zahl(entriesToRemove, "plugin"), entriesToRemove.map(([key]) => key).join(", "))
   }
 
   async gatherConfigSetups() {
