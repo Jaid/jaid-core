@@ -9,7 +9,7 @@ Name|Return value
 `setCoreReference(core)`|
 `getConfigSetup`|`Object additionalConfigSetup`
 `preInit`|`boolean shouldRemovePlugin`
-`handleConfig(config)`|
+`handleConfig(config)`|`boolean shouldRemovePlugin`
 `handleKoa(koa)`|
 `handleGot(got)`|
 `collectModels`|`Object sequelizeModels`
