@@ -3,6 +3,15 @@
 
 Combines jaid-logger, essential-config, got, koa and sequelize.
 
+## Installation
+<a href='https://npmjs.com/package/jaid-core'><img alt='npm logo' src='https://raw.githubusercontent.com/npm/logos/master/npm%20logo/npm-logo-red.png' height=16/></a>
+```bash
+npm install --save jaid-core@^
+```
+<a href='https://yarnpkg.com/package/jaid-core'><img alt='Yarn logo' src='https://raw.githubusercontent.com/yarnpkg/assets/master/yarn-kitten-full.png' height=24/></a>
+```bash
+yarn add jaid-core@^
+```
 
 
 ## Try it out
