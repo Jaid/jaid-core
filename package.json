@@ -55,5 +55,5 @@
     "prepareActionJest": "npm run build:prod"
   },
   "name": "jaid-core",
-  "description": "Combines jaid-logger, essential-config, got, koa and sequelize."
+  "description": "Simple, opinionated framework that combines koa, got, sequelize, essential-config and jaid-logger."
 }
