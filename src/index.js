@@ -1,20 +1,19 @@
 /** @module jaid-core */
 
-import path from "path"
-
-import jaidLogger from "jaid-logger"
 import camelCase from "camelcase"
+import ensureArray from "ensure-array"
+import ensureEnd from "ensure-end"
 import essentialConfig from "essential-config"
 import hasContent, {isEmpty} from "has-content"
-import ensureArray from "ensure-array"
-import sortKeys from "sort-keys"
-import pify from "pify"
 import isClass from "is-class"
-import readableMs from "readable-ms"
-import zahl from "zahl"
+import jaidLogger from "jaid-logger"
+import {isString, uniq} from "lodash"
+import path from "path"
+import pify from "pify"
 import preventStart from "prevent-start"
-import {uniq, isString} from "lodash"
-import ensureEnd from "ensure-end"
+import readableMs from "readable-ms"
+import sortKeys from "sort-keys"
+import zahl from "zahl"
 
 /**
  * @typedef {Object} Options
@@ -431,7 +430,7 @@ export default class {
               response => {
                 let displayedUrl = preventStart(response.requestUrl, "https://")
                 if (displayedUrl.length > 160) {
-                  displayedUrl = `${displayedUrl.substr(0, 159)}…`
+                  displayedUrl = `${displayedUrl.slice(0, 159)}…`
                 }
                 this.logger.log(this.options.gotLogLevel, `[${response.statusCode} ${response.statusMessage} in ${readableMs(response.timings.phases.total)}] ▶︎ ${response.request.gotOptions.method} ${response.requestUrl}`)
                 return response
