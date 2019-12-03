@@ -1,7 +1,7 @@
 # jaid-core
 
 
-Combines jaid-logger, essential-config, got, koa and sequelize.
+Simple, opinionated framework that combines koa, got, sequelize, essential-config and jaid-logger.
 
 ## Installation
 <a href='https://npmjs.com/package/jaid-core'><img alt='npm logo' src='https://raw.githubusercontent.com/npm/logos/master/npm%20logo/npm-logo-red.png' height=16/></a>
