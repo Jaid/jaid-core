@@ -1,6 +1,7 @@
 /** @module jaid-core */
 
 import camelCase from "camelcase"
+import chalk from "chalk"
 import ensureArray from "ensure-array"
 import ensureEnd from "ensure-end"
 import essentialConfig from "essential-config"
@@ -11,9 +12,10 @@ import {isString, uniq} from "lodash"
 import path from "path"
 import pify from "pify"
 import preventStart from "prevent-start"
-import readableMs from "readable-ms"
 import sortKeys from "sort-keys"
 import zahl from "zahl"
+
+import readableMs from "lib/readableMs"
 
 /**
  * @typedef {Object} Options
@@ -432,7 +434,7 @@ export default class {
                 if (displayedUrl.length > 160) {
                   displayedUrl = `${displayedUrl.slice(0, 159)}…`
                 }
-                this.logger.log(this.options.gotLogLevel, `[${response.statusCode} ${response.statusMessage} in ${readableMs(response.timings.phases.total)}] ▶︎ ${response.request.options.method} ${response.requestUrl}`)
+                this.logger.log(this.options.gotLogLevel, `[${response.statusCode} ${response.statusMessage} in ${readableMs(response.timings.phases.total)}] ▶︎ ${response.request.options.method} ${chalk.yellow(response.requestUrl)}`)
                 return response
               },
             ],
