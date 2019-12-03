@@ -432,7 +432,7 @@ export default class {
                 if (displayedUrl.length > 160) {
                   displayedUrl = `${displayedUrl.slice(0, 159)}…`
                 }
-                this.logger.log(this.options.gotLogLevel, `[${response.statusCode} ${response.statusMessage} in ${readableMs(response.timings.phases.total)}] ▶︎ ${response.request.option.method} ${response.requestUrl}`)
+                this.logger.log(this.options.gotLogLevel, `[${response.statusCode} ${response.statusMessage} in ${readableMs(response.timings.phases.total)}] ▶︎ ${response.request.options.method} ${response.requestUrl}`)
                 return response
               },
             ],
