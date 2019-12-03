@@ -6,29 +6,14 @@ Combines jaid-logger, essential-config, got, koa and sequelize.
 ## Installation
 <a href='https://npmjs.com/package/jaid-core'><img alt='npm logo' src='https://raw.githubusercontent.com/npm/logos/master/npm%20logo/npm-logo-red.png' height=16/></a>
 ```bash
-npm install --save jaid-core@^
+npm install --save jaid-core@^5.6.0
 ```
 <a href='https://yarnpkg.com/package/jaid-core'><img alt='Yarn logo' src='https://raw.githubusercontent.com/yarnpkg/assets/master/yarn-kitten-full.png' height=24/></a>
 ```bash
-yarn add jaid-core@^
+yarn add jaid-core@^5.6.0
 ```
 
 
-## Try it out
-Open a browser's JavaScript console and execute:
-
-```javascript
-const scriptElement = document.createElement("script");
-scriptElement.setAttribute("type","text/javascript");
-scriptElement.setAttribute("src","https://unpkg.com/jaid-core@5.6.0");
-document.querySelector("head").appendChild(scriptElement);
-```
-
-The module is now loaded in a variable.
-
-```javascript
-typeof jaid-core.default
-```
 
 
 ## License
