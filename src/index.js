@@ -417,9 +417,9 @@ export default class {
         await this.callPlugins("handleKoa", this.koa)
       }
       if (this.options.useGot) {
-      /**
-       * @type {import("got")}
-       */
+        /**
+         * @type {import("got")}
+         */
         const got = __non_webpack_require__("got")
         this.got = got.extend({
           headers: {
@@ -432,7 +432,7 @@ export default class {
                 if (displayedUrl.length > 160) {
                   displayedUrl = `${displayedUrl.slice(0, 159)}…`
                 }
-                this.logger.log(this.options.gotLogLevel, `[${response.statusCode} ${response.statusMessage} in ${readableMs(response.timings.phases.total)}] ▶︎ ${response.request.gotOptions.method} ${response.requestUrl}`)
+                this.logger.log(this.options.gotLogLevel, `[${response.statusCode} ${response.statusMessage} in ${readableMs(response.timings.phases.total)}] ▶︎ ${response.request.option.method} ${response.requestUrl}`)
                 return response
               },
             ],
