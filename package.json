@@ -39,7 +39,7 @@
     "socket.io-client": "^2.3.0",
     "sqlite3": "^4.1.0",
     "webpack": "^4.41.2",
-    "webpack-config-jaid": "^5.31.2"
+    "webpack-config-jaid": "^5.32.0"
   },
   "scripts": {
     "clean": "rimraf dist/",
