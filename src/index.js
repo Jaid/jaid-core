@@ -50,6 +50,7 @@ import readableMs from "lib/readableMs"
  * @prop {number} securePort
  * @prop {string} databasePath
  * @prop {string[]|string} koaKeys
+ * @prop {string[]|string} disabledPlugins
  */
 
 /**
@@ -186,7 +187,9 @@ export default class {
      */
     const configSetup = {
       fields: {},
-      defaults: {},
+      defaults: {
+        disabledPlugins: [],
+      },
       secretKeys: [],
     }
     if (this.hasDatabase) {
@@ -359,6 +362,20 @@ export default class {
         this.logger.warn("Config contains %s: %s", zahl(configResult.deprecatedKeys, "no longer needed entry"), configResult.deprecatedKeys.join(", "))
       }
       Object.assign(this.config, configResult.config)
+      if (hasContent(this.config.disabledPlugins)) {
+        const successfullyDisabledPlugins = []
+        for (const disabledPlugin of ensureArray(this.config.disabledPlugins)) {
+          if (this.plugins[disabledPlugin]) {
+            delete this.plugins[disabledPlugin]
+            successfullyDisabledPlugins.push(disabledPlugin)
+          } else {
+            this.logger.warn(`${disabledPlugin} is listed in config.disabledPlugins, but was not intended to be loaded at all`)
+          }
+        }
+        if (hasContent(successfullyDisabledPlugins)) {
+          this.logger.info(`${zahl(successfullyDisabledPlugins, "plugin")} will be skipped because of config.disabledPlugins: ${successfullyDisabledPlugins.join(", ")}`)
+        }
+      }
       await this.callAndRemovePlugins("handleConfig", this.config)
       if (this.hasDatabase) {
         const Sequelize = __non_webpack_require__("sequelize")
