@@ -198,8 +198,14 @@ export default class {
       })
       if (this.options.sqlite) {
         const sqliteName = ensureEnd(isString(this.options.database) ? this.options.database : "database", ".sqlite")
+        let databasePath
+        if (path.isAbsolute(sqliteName)) {
+          databasePath = sqliteName
+        } else {
+          databasePath = path.join(this.appFolder, sqliteName)
+        }
         Object.assign(configSetup.defaults, {
-          databasePath: path.join(this.appFolder, sqliteName),
+          databasePath,
         })
       } else {
         Object.assign(configSetup.defaults, {
