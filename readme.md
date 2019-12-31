@@ -7,6 +7,30 @@ Simple, opinionated framework that combines koa, got, sequelize, essential-confi
 <a href="https://github.com/Jaid/jaid-core/commits"><img src="https://img.shields.io/github/commits-since/Jaid/jaid-core/v5.9.2?style=flat-square&logo=github&color=success" alt="Commits since v5.9.2"/></a> <a href="https://github.com/Jaid/jaid-core/commits"><img src="https://img.shields.io/github/last-commit/Jaid/jaid-core?style=flat-square&logo=github&color=red" alt="Last commit"/></a> <a href="https://github.com/Jaid/jaid-core/issues"><img src="https://img.shields.io/github/issues/Jaid/jaid-core?style=flat-square&logo=github&color=red" alt="Issues"/></a>  
 <a href="https://npmjs.com/package/jaid-core"><img src="https://img.shields.io/npm/v/jaid-core?style=flat-square&logo=npm&label=latest%20version&color=success" alt="Latest version on npm"/></a> <a href="https://github.com/Jaid/jaid-core/network/dependents"><img src="https://img.shields.io/librariesio/dependents/npm/jaid-core?style=flat-square&logo=npm&color=red" alt="Dependents"/></a> <a href="https://npmjs.com/package/jaid-core"><img src="https://img.shields.io/npm/dm/jaid-core?style=flat-square&logo=npm&color=red" alt="Downloads"/></a>
 
+
+
+
+
+## Usage
+
+Called properties of plugins:
+
+Name|Parameters|Return value
+---|---|---
+`setCoreReference`|`JaidCore core`|
+`getConfigSetup`||`Object additionalConfigSetup`
+`preInit`||`boolean shouldRemovePlugin`
+`handleConfig`|`Object config`|`boolean shouldRemovePlugin`
+`handleKoa`|`Koa koa`
+`handleGot`|`Got got`
+`collectModels`||`Object sequelizeModels`
+`init`||`boolean shouldRemovePlugin`
+`postInit`||`boolean shouldRemovePlugin`
+`ready`|
+`handleLog`|`string level`, `string[] fragments`|
+
+
+
 ## Installation
 <a href="https://npmjs.com/package/jaid-core"><img src="https://img.shields.io/badge/npm-jaid--core-C23039?style=flat-square&logo=npm" alt="jaid-core on npm"/></a>
 ```bash
@@ -16,6 +40,10 @@ npm install --save jaid-core@^5.9.2
 ```bash
 yarn add jaid-core@^5.9.2
 ```
+
+
+
+
 
 
 
