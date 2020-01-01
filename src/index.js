@@ -17,6 +17,8 @@ import zahl from "zahl"
 
 import readableMs from "lib/readableMs"
 
+import JaidCorePlugin from "./JaidCorePlugin"
+
 /**
  * @typedef {Object} Options
  * @prop {string} name
@@ -60,10 +62,12 @@ import readableMs from "lib/readableMs"
  * @prop {typeof import("sequelize").Model} default
  */
 
+export {JaidCorePlugin}
+
 /**
  * @class
  */
-export default class {
+export default class JaidCore {
 
   /**
    * @constructor
@@ -305,7 +309,8 @@ export default class {
       results[name] = await result
     })
     await Promise.all(jobs)
-    this.logger.info("Called %s in %s on: %s", memberName, readableMs(Date.now() - startTime), filteredEntries.map(([name]) => name).join(", "))
+    const pluginsString = filteredEntries.map(([pluginId, plugin]) => this.formatPluginName(pluginId, plugin)).join(", ")
+    this.logger.info("Called %s in %s on: %s", memberName, readableMs(Date.now() - startTime), pluginsString)
     return results
   }
 
@@ -329,7 +334,33 @@ export default class {
     for (const [name] of entriesToRemove) {
       delete this.plugins[name]
     }
-    this.logger.info("%s wanted to be removed: %s", zahl(entriesToRemove, "plugin"), entriesToRemove.map(([key]) => key).join(", "))
+    const pluginsString = entriesToRemove.map(([pluginId, plugin]) => this.formatPluginName(pluginId, plugin)).join(", ")
+    this.logger.info("%s wanted to be removed: %s", zahl(entriesToRemove, "plugin"), pluginsString)
+  }
+
+  /**
+   * @param {Function} job
+   */
+  doForManagedPluginsSync(job) {
+    for (const [pluginId, plugin] of Object.entries(this.plugins)) {
+      if (plugin.isManagedByJaidCore !== true) {
+        continue
+      }
+      job(plugin, pluginId)
+    }
+  }
+
+  /**
+   * @param {Function} job
+   * @return {Promise<void>}
+   */
+  async doForManagedPlugins(job) {
+    for (const [pluginId, plugin] of Object.entries(this.plugins)) {
+      if (plugin.isManagedByJaidCore !== true) {
+        continue
+      }
+      await job(plugin, pluginId)
+    }
   }
 
   async gatherConfigSetups() {
@@ -342,6 +373,30 @@ export default class {
   }
 
   /**
+   * @param {string} pluginId
+   * @return {string}
+   */
+  formatPluginName(pluginId) {
+    return chalk.magenta(pluginId)
+  }
+
+  /**
+   * @param {string} pluginId
+   * @param {Object} plugin
+   * @return {string}
+   */
+  formatPluginNameDetailed(pluginId, plugin) {
+    let text = this.formatPluginName(pluginId)
+    text += " "
+    if (plugin.isManagedByJaidCore === true) {
+      text += chalk.gray("(auto-managed)")
+    } else {
+      text += chalk.gray("(self-managed)")
+    }
+    return text
+  }
+
+  /**
    * @param {Object} [plugins={}]
    * @returns {Promise<void>}
    */
@@ -351,10 +406,23 @@ export default class {
       this.applyConfigSetup(this.options.configSetup)
       const pluginEntries = Object.entries(plugins)
       this.hasPlugins = pluginEntries.length > 0
-      for (const [key, value] of pluginEntries) {
-        this.plugins[key] = isClass(value) ? new value(this) : value
+      for (const [pluginId, value] of pluginEntries) {
+        let plugin
+        if (isClass(value)) {
+          plugin = new value(this)
+        } else {
+          plugin = value
+        }
+        this.plugins[pluginId] = plugin
+      }
+      if (hasContent(this.plugins)) {
+        this.logger.info(`${zahl(this.plugins, "plugin")}: ${Object.entries(this.plugins).map(([pluginId, plugin]) => this.formatPluginNameDetailed(pluginId, plugin)).join(", ")}`)
       }
       await this.callPlugins("setCoreReference", this)
+      this.doForManagedPluginsSync(plugin => {
+        plugin.core = this
+        plugin.logger = this.logger
+      })
       await this.gatherConfigSetups()
       await this.callAndRemovePlugins("preInit")
       /**

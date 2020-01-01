@@ -1,18 +1,17 @@
-import path from "path"
-
-import Sequelize from "sequelize"
-import ms from "ms.macro"
-import socketIo from "socket.io"
-import socketIoClient from "socket.io-client"
 import delay from "delay"
 import {router} from "fast-koa-router"
+import ms from "ms.macro"
+import path from "path"
+import Sequelize from "sequelize"
+import socketIo from "socket.io"
+import socketIoClient from "socket.io-client"
 
 const indexModule = (process.env.MAIN ? path.resolve(process.env.MAIN) : path.join(__dirname, "..", "src")) |> require
 
 /**
  * @type { import("../src") }
  */
-const {default: JaidCore} = indexModule
+const {default: JaidCore, JaidCorePlugin} = indexModule
 
 const port = 15183
 
@@ -73,13 +72,13 @@ it("should run", async () => {
     }
 
   }
-  const socketPluginClass = class {
+  const socketPluginClass = class extends JaidCorePlugin {
 
     async init() {
       this.socketServer = socketIo(core.insecureServer)
       this.socketServer.on("connection", client => {
         receivedKey = client.handshake.query.key
-        core.logger.info("Client has connected!")
+        this.logger.info("Client has connected!")
         this.client = client
       })
     }
