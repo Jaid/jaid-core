@@ -18,16 +18,19 @@ Name|Parameters|Return value
 Plugin example:
 
 ```js
-export default class JaidCorePlugin {
+import {JaidCorePlugin} from "jaid-core"
+
+export default class Plugin extends JaidCorePlugin {
 
   constructor(options = {}) {
+    super()
     this.options = {
       ...options
     }
   }
 
   ready() {
-    console.log("Hello!")
+    this.log("Hello!")
   }
 
 }
