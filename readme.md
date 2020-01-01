@@ -24,7 +24,7 @@ Name|Parameters|Return value
 `handleConfig`|`Object config`|`boolean shouldRemovePlugin`
 `handleKoa`|`Koa koa`
 `handleGot`|`Got got`
-`collectModels`||`Object sequelizeModels`
+`collectModels`||`Object<string, {default: Model, schema: Object}>`
 `init`||`boolean shouldRemovePlugin`
 `postInit`||`boolean shouldRemovePlugin`
 `ready`|
