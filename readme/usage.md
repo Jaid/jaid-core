@@ -2,7 +2,8 @@ These optional plugin properties may be called by `jaid-core`:
 
 Name|Parameters|Return value
 ---|---|---
-`setCoreReference`|`JaidCore core`|
+`constructor`|`JaidCore core`
+`setCoreReference`|`JaidCore core`
 `getConfigSetup`||`Object additionalConfigSetup`
 `preInit`||`boolean shouldRemovePlugin`
 `handleConfig`|`Object config`|`boolean shouldRemovePlugin`
