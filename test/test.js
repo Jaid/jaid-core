@@ -1,7 +1,9 @@
 import delay from "delay"
 import {router} from "fast-koa-router"
+import moment from "moment"
 import ms from "ms.macro"
 import path from "path"
+import readFileString from "read-file-string"
 import Sequelize from "sequelize"
 import socketIo from "socket.io"
 import socketIoClient from "socket.io-client"
@@ -144,4 +146,8 @@ it("should run", async () => {
   expect(receivedKey).toBe("mykey")
   socketClient.close()
   await core.close()
+  const dateString = moment().format("YYYY-MM-DD")
+  const logFile = path.join(core.logger.logFolder, "debug", `${dateString}.txt`)
+  const content = await readFileString(logFile)
+  expect(content).toMatch("3 plugins: main (self-managed), removeMe (self-managed), socketServer (auto-managed)")
 }, ms`10 seconds`)
