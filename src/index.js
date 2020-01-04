@@ -267,11 +267,14 @@ export default class JaidCore {
   /**
    * @param {string} modelName
    * @param {(superClass, classGenerationContext) => SequelizeDefinition} generateDefinition
+   * @param {Object} Sequelize
+   * @param {Object} plugin
    */
-  registerModelDynamic(modelName, generateDefinition, Sequelize) {
+  registerModelDynamic(modelName, generateDefinition, Sequelize, plugin) {
     const superClass = Sequelize.Model
     const classGenerationContext = {
       core: this,
+      parentPlugin: plugin,
     }
     const definition = generateDefinition(superClass, classGenerationContext)
     const schema = sortKeys(definition.schema)
@@ -587,20 +590,21 @@ export default class JaidCore {
         const staticModelNames = []
         const dynamicModelNames = []
         if (modelMaps) {
-          const modelDefinitions = {}
-          Object.assign(modelDefinitions, ...Object.values(modelMaps))
-          for (const [name, modelDefinition] of Object.entries(modelDefinitions |> sortKeys)) {
-            if (modelDefinition.schema) {
-              this.registerModel(name, modelDefinition)
-              staticModelNames.push(name)
-            } else if (isFunction(modelDefinition)) {
-              this.registerModelDynamic(name, modelDefinition, Sequelize)
-              dynamicModelNames.push(name)
-            } else if (isFunction(modelDefinition.default)) {
-              this.registerModelDynamic(name, modelDefinition.default, Sequelize)
-              dynamicModelNames.push(name)
-            } else {
-              throw new Error(`Not sure what to do with given Sequelize model definition ${name}`)
+          for (const [pluginName, modelMap] of Object.entries(modelMaps)) {
+            const plugin = plugins[pluginName]
+            for (const [modelName, modelDefinition] of Object.entries(modelMap)) {
+              if (modelDefinition.schema) {
+                this.registerModel(modelName, modelDefinition)
+                staticModelNames.push(modelName)
+              } else if (isFunction(modelDefinition)) {
+                this.registerModelDynamic(modelName, modelDefinition, Sequelize, plugin)
+                dynamicModelNames.push(modelName)
+              } else if (isFunction(modelDefinition.default)) {
+                this.registerModelDynamic(modelName, modelDefinition.default, Sequelize, plugin)
+                dynamicModelNames.push(modelName)
+              } else {
+                throw new Error(`Not sure what to do with given Sequelize model definition ${modelName}`)
+              }
             }
           }
         }
