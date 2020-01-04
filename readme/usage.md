@@ -68,6 +68,8 @@ export default PluginModel
 Advanced Sequelize model (dynamically generated):
 
 ```js
+import Sequelize from "sequelize"
+
 export default (Model, {core}) => {
 
     class AdvancedModel extends Model {
