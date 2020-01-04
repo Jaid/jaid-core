@@ -90,14 +90,14 @@ import Sequelize from "sequelize"
  * @param {import("jaid-core").ModelDefinitionContext} context
  * @return {{default, schema}}
  */
-export default (Model, {core}) => {
+export default (Model, {models}) => {
 
     class AdvancedModel extends Model {
 
       /**
        * @param {Object<string, import("sequelize").Model>} models
        */
-      static associate(models) {
+      static associate() {
         AdvancedModel.belongsTo(models.AnotherModel, {
           foreignKey: {
             allowNull: false,
