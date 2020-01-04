@@ -4,7 +4,7 @@
 Simple, opinionated framework that combines koa, got, sequelize, essential-config and jaid-logger.
 
 <a href="https://raw.githubusercontent.com/Jaid/jaid-core/master/license.txt"><img src="https://img.shields.io/github/license/Jaid/jaid-core?style=flat-square&color=success" alt="License"/></a>  
-<a href="https://github.com/Jaid/jaid-core/commits"><img src="https://img.shields.io/github/commits-since/Jaid/jaid-core/v7.3.0?style=flat-square&logo=github&color=success" alt="Commits since v7.3.0"/></a> <a href="https://github.com/Jaid/jaid-core/commits"><img src="https://img.shields.io/github/last-commit/Jaid/jaid-core?style=flat-square&logo=github&color=red" alt="Last commit"/></a> <a href="https://github.com/Jaid/jaid-core/issues"><img src="https://img.shields.io/github/issues/Jaid/jaid-core?style=flat-square&logo=github&color=red" alt="Issues"/></a>  
+<a href="https://github.com/Jaid/jaid-core/commits"><img src="https://img.shields.io/github/commits-since/Jaid/jaid-core/v7.3.1?style=flat-square&logo=github&color=success" alt="Commits since v7.3.1"/></a> <a href="https://github.com/Jaid/jaid-core/commits"><img src="https://img.shields.io/github/last-commit/Jaid/jaid-core?style=flat-square&logo=github&color=red" alt="Last commit"/></a> <a href="https://github.com/Jaid/jaid-core/issues"><img src="https://img.shields.io/github/issues/Jaid/jaid-core?style=flat-square&logo=github&color=red" alt="Issues"/></a>  
 <a href="https://npmjs.com/package/jaid-core"><img src="https://img.shields.io/npm/v/jaid-core?style=flat-square&logo=npm&label=latest%20version&color=success" alt="Latest version on npm"/></a> <a href="https://github.com/Jaid/jaid-core/network/dependents"><img src="https://img.shields.io/librariesio/dependents/npm/jaid-core?style=flat-square&logo=npm&color=red" alt="Dependents"/></a> <a href="https://npmjs.com/package/jaid-core"><img src="https://img.shields.io/npm/dm/jaid-core?style=flat-square&logo=npm&color=red" alt="Downloads"/></a>
 
 
@@ -137,11 +137,11 @@ export default (Model, {core}) => {
 ## Installation
 <a href="https://npmjs.com/package/jaid-core"><img src="https://img.shields.io/badge/npm-jaid--core-C23039?style=flat-square&logo=npm" alt="jaid-core on npm"/></a>
 ```bash
-npm install --save jaid-core@^7.3.0
+npm install --save jaid-core@^7.3.1
 ```
 <a href="https://yarnpkg.com/package/jaid-core"><img src="https://img.shields.io/badge/Yarn-jaid--core-2F8CB7?style=flat-square&logo=yarn&logoColor=white" alt="jaid-core on Yarn"/></a>
 ```bash
-yarn add jaid-core@^7.3.0
+yarn add jaid-core@^7.3.1
 ```
 
 
