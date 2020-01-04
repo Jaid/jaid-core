@@ -85,6 +85,11 @@ Advanced Sequelize model (dynamically generated):
 ```js
 import Sequelize from "sequelize"
 
+/**
+ * @param {typeof import("sequelize").Model} Model
+ * @param {import("jaid-core").ModelDefinitionContext} context
+ * @return {{default, schema}}
+ */
 export default (Model, {core}) => {
 
     class AdvancedModel extends Model {
