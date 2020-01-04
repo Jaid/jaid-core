@@ -612,10 +612,10 @@ export default class JaidCore {
         if (models.length === 0) {
           this.logger.warn("No models have been registered, that's weird")
         } else {
-          if (staticModelNames) {
+          if (staticModelNames.length) {
             this.logger.info(`${zahl(staticModelNames, "static model definition")} loaded: ${staticModelNames.join(", ")}`)
           }
-          if (dynamicModelNames) {
+          if (dynamicModelNames.length) {
             this.logger.info(`${zahl(dynamicModelNames, "dynamic model definition")} generated: ${dynamicModelNames.join(", ")}`)
           }
           const modelsWithAssociate = models.filter(model => model.associate)
