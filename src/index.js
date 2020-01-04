@@ -8,7 +8,7 @@ import essentialConfig from "essential-config"
 import hasContent, {isEmpty} from "has-content"
 import isClass from "is-class"
 import jaidLogger from "jaid-logger"
-import {isString, uniq} from "lodash"
+import {isFunction, isString, uniq} from "lodash"
 import path from "path"
 import pify from "pify"
 import preventStart from "prevent-start"
@@ -256,7 +256,25 @@ export default class JaidCore {
    * @param {SequelizeDefinition} definition
    */
   registerModel(modelName, definition) {
-    const schema = definition.schema
+    const schema = sortKeys(definition.schema)
+    definition.default.init(schema, {
+      modelName,
+      sequelize: this.database,
+      indexes: definition.indexes,
+    })
+  }
+
+  /**
+   * @param {string} modelName
+   * @param {(superClass, classGenerationContext) => SequelizeDefinition} generateDefinition
+   */
+  registerModelDynamic(modelName, generateDefinition, Sequelize) {
+    const superClass = Sequelize.Model
+    const classGenerationContext = {
+      core: this,
+    }
+    const definition = generateDefinition.default(superClass, classGenerationContext)
+    const schema = sortKeys(definition.schema)
     definition.default.init(schema, {
       modelName,
       sequelize: this.database,
@@ -452,8 +470,9 @@ export default class JaidCore {
         }
       }
       await this.callAndRemovePlugins("handleConfig", this.config)
+      let Sequelize
       if (this.hasDatabase) {
-        const Sequelize = __non_webpack_require__("sequelize")
+        Sequelize = __non_webpack_require__("sequelize")
         const sequelizeOptions = {}
         if (this.options.sqlite) {
           Object.assign(sequelizeOptions, {
@@ -565,17 +584,36 @@ export default class JaidCore {
         }
         await this.database.authenticate()
         const modelMaps = await this.callPlugins("collectModels")
+        const staticModelNames = []
+        const dynamicModelNames = []
         if (modelMaps) {
           const modelDefinitions = {}
           Object.assign(modelDefinitions, ...Object.values(modelMaps))
           for (const [name, modelDefinition] of Object.entries(modelDefinitions |> sortKeys)) {
-            this.registerModel(name, modelDefinition)
+            if (modelDefinition.schema) {
+              this.registerModel(name, modelDefinition)
+              staticModelNames.push(name)
+            } else if (isFunction(modelDefinition)) {
+              this.registerModelDynamic(name, modelDefinition, Sequelize)
+              dynamicModelNames.push(name)
+            } else if (isFunction(modelDefinition.default)) {
+              this.registerModelDynamic(name, modelDefinition.default, Sequelize)
+              dynamicModelNames.push(name)
+            } else {
+              throw new Error(`Not sure what to do with given Sequelize model definition ${name}`)
+            }
           }
         }
         const models = Object.values(this.database.models)
         if (models.length === 0) {
           this.logger.warn("No models have been registered, that's weird")
         } else {
+          if (staticModelNames) {
+            this.logger.info(`${zahl(staticModelNames, "static model definition")} loaded: ${staticModelNames.join(", ")}`)
+          }
+          if (dynamicModelNames) {
+            this.logger.info(`${zahl(dynamicModelNames, "dynamic model definition")} generated: ${dynamicModelNames.join(", ")}`)
+          }
           const modelsWithAssociate = models.filter(model => model.associate)
           if (modelsWithAssociate.length > 0) {
             for (const model of modelsWithAssociate) {
