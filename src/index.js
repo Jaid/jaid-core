@@ -273,7 +273,7 @@ export default class JaidCore {
     const classGenerationContext = {
       core: this,
     }
-    const definition = generateDefinition.default(superClass, classGenerationContext)
+    const definition = generateDefinition(superClass, classGenerationContext)
     const schema = sortKeys(definition.schema)
     definition.default.init(schema, {
       modelName,
