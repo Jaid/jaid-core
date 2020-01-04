@@ -256,7 +256,8 @@ export default class JaidCore {
    * @param {SequelizeDefinition} definition
    */
   registerModel(modelName, definition) {
-    definition.default.init(definition.schema |> sortKeys, {
+    const schema = definition.schema
+    definition.default.init(schema, {
       modelName,
       sequelize: this.database,
       indexes: definition.indexes,
