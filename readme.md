@@ -80,6 +80,51 @@ export const schema = {
 export default PluginModel
 ```
 
+Advanced Sequelize model (dynamically generated):
+
+```js
+export default (Model, {core}) => {
+
+    class AdvancedModel extends Model {
+
+      /**
+       * @param {Object<string, import("sequelize").Model>} models
+       */
+      static associate(models) {
+        AdvancedModel.belongsTo(models.AnotherModel, {
+          foreignKey: {
+            allowNull: false,
+          },
+        })
+      }
+
+      /**
+       * @return {string}
+       */
+      getTitle() {
+        return this.title
+      }
+
+  }
+
+  /**
+   * @type {import("sequelize").ModelAttributes}
+   */
+  const schema = {
+    title: {
+      type: Sequelize.STRING,
+      allowNull: false
+    }
+  }
+
+  return {
+    default: AdvancedModel
+    schema,
+  }
+
+}
+```
+
 
 
 ## Installation
