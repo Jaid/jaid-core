@@ -103,7 +103,7 @@ export default (Model, {core}) => {
   }
 
   return {
-    default: AdvancedModel
+    default: AdvancedModel,
     schema,
   }
 
