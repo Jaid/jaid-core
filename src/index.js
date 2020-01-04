@@ -265,6 +265,14 @@ export default class JaidCore {
   }
 
   /**
+   * @typedef {Object} ModelDefinitionContext
+   * @prop {JaidCore} core
+   * @prop {JaidCorePlugin} parentPlugin
+   * @prop {import("sequelize").default} sequelize
+   * @prop {Object<string, import("sequelize").Model)} models
+   */
+
+  /**
    * @param {string} modelName
    * @param {(superClass, classGenerationContext) => SequelizeDefinition} generateDefinition
    * @param {Object} Sequelize
@@ -274,6 +282,8 @@ export default class JaidCore {
     const superClass = Sequelize.Model
     const classGenerationContext = {
       core: this,
+      sequelize: this.database,
+      models: this.database.models,
       parentPlugin: plugin,
     }
     const definition = generateDefinition(superClass, classGenerationContext)
