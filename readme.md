@@ -11,6 +11,16 @@
 
 
 
+## Installation
+<a href="https://npmjs.com/package/jaid-core"><img src="https://img.shields.io/badge/npm-jaid--core-C23039?style=flat-square&logo=npm" alt="jaid-core on npm"/></a>
+```bash
+npm install --save jaid-core@^7.3.4
+```
+<a href="https://yarnpkg.com/package/jaid-core"><img src="https://img.shields.io/badge/Yarn-jaid--core-2F8CB7?style=flat-square&logo=yarn&logoColor=white" alt="jaid-core on Yarn"/></a>
+```bash
+yarn add jaid-core@^7.3.4
+```
+
 
 
 
@@ -139,16 +149,6 @@ export default (Model, {models}) => {
 
 
 
-
-## Installation
-<a href="https://npmjs.com/package/jaid-core"><img src="https://img.shields.io/badge/npm-jaid--core-C23039?style=flat-square&logo=npm" alt="jaid-core on npm"/></a>
-```bash
-npm install --save jaid-core@^7.3.4
-```
-<a href="https://yarnpkg.com/package/jaid-core"><img src="https://img.shields.io/badge/Yarn-jaid--core-2F8CB7?style=flat-square&logo=yarn&logoColor=white" alt="jaid-core on Yarn"/></a>
-```bash
-yarn add jaid-core@^7.3.4
-```
 
 
 
