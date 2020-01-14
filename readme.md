@@ -2,7 +2,7 @@
 
 
 <a href="https://raw.githubusercontent.com/jaid/jaid-core/master/license.txt"><img src="https://img.shields.io/github/license/jaid/jaid-core?style=flat-square" alt="License"/></a> <a href="https://github.com/sponsors/jaid"><img src="https://img.shields.io/badge/<3-Sponsor-FF45F1?style=flat-square" alt="Sponsor jaid-core"/></a>  
-<a href="https://actions-badge.atrox.dev/jaid/jaid-core/goto"><img src="https://img.shields.io/endpoint.svg?style=flat-square&url=https%3A%2F%2Factions-badge.atrox.dev%2Fjaid%2Fjaid-core%2Fbadge" alt="Build status"/></a> <a href="https://github.com/jaid/jaid-core/commits"><img src="https://img.shields.io/github/commits-since/jaid/jaid-core/v7.3.2?style=flat-square&logo=github" alt="Commits since v7.3.2"/></a> <a href="https://github.com/jaid/jaid-core/commits"><img src="https://img.shields.io/github/last-commit/jaid/jaid-core?style=flat-square&logo=github" alt="Last commit"/></a> <a href="https://github.com/jaid/jaid-core/issues"><img src="https://img.shields.io/github/issues/jaid/jaid-core?style=flat-square&logo=github" alt="Issues"/></a>  
+<a href="https://actions-badge.atrox.dev/jaid/jaid-core/goto"><img src="https://img.shields.io/endpoint.svg?style=flat-square&url=https%3A%2F%2Factions-badge.atrox.dev%2Fjaid%2Fjaid-core%2Fbadge" alt="Build status"/></a> <a href="https://github.com/jaid/jaid-core/commits"><img src="https://img.shields.io/github/commits-since/jaid/jaid-core/v7.3.3?style=flat-square&logo=github" alt="Commits since v7.3.3"/></a> <a href="https://github.com/jaid/jaid-core/commits"><img src="https://img.shields.io/github/last-commit/jaid/jaid-core?style=flat-square&logo=github" alt="Last commit"/></a> <a href="https://github.com/jaid/jaid-core/issues"><img src="https://img.shields.io/github/issues/jaid/jaid-core?style=flat-square&logo=github" alt="Issues"/></a>  
 <a href="https://npmjs.com/package/jaid-core"><img src="https://img.shields.io/npm/v/jaid-core?style=flat-square&logo=npm&label=latest%20version" alt="Latest version on npm"/></a> <a href="https://github.com/jaid/jaid-core/network/dependents"><img src="https://img.shields.io/librariesio/dependents/npm/jaid-core?style=flat-square&logo=npm" alt="Dependents"/></a> <a href="https://npmjs.com/package/jaid-core"><img src="https://img.shields.io/npm/dm/jaid-core?style=flat-square&logo=npm" alt="Downloads"/></a>
 
 **Simple, opinionated framework that combines koa, got, sequelize, essential-config and jaid-logger.**
@@ -143,11 +143,11 @@ export default (Model, {models}) => {
 ## Installation
 <a href="https://npmjs.com/package/jaid-core"><img src="https://img.shields.io/badge/npm-jaid--core-C23039?style=flat-square&logo=npm" alt="jaid-core on npm"/></a>
 ```bash
-npm install --save jaid-core@^7.3.2
+npm install --save jaid-core@^7.3.3
 ```
 <a href="https://yarnpkg.com/package/jaid-core"><img src="https://img.shields.io/badge/Yarn-jaid--core-2F8CB7?style=flat-square&logo=yarn&logoColor=white" alt="jaid-core on Yarn"/></a>
 ```bash
-yarn add jaid-core@^7.3.2
+yarn add jaid-core@^7.3.3
 ```
 
 
