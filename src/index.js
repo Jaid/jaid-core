@@ -263,6 +263,7 @@ export default class JaidCore {
       modelName,
       sequelize: this.database,
       indexes: definition.indexes,
+      ...definition.modelOptions
     })
   }
 
@@ -294,6 +295,7 @@ export default class JaidCore {
       modelName,
       sequelize: this.database,
       indexes: definition.indexes,
+      ...definition.modelOptions
     })
   }
 
