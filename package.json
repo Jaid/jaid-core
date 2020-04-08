@@ -12,7 +12,7 @@
     "has-content": "^1.1.1",
     "humanize-duration": "^3.22.0",
     "is-class": "0.0.9",
-    "jaid-logger": "^2.1.0",
+    "jaid-logger": "^2.1.1",
     "lodash": "^4.17.15",
     "pify": "^5.0.0",
     "prevent-start": "^1.0.5",
