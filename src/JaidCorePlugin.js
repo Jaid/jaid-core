@@ -18,32 +18,4 @@ export default class JaidCorePlugin {
    */
   logger = null
 
-  /**
-   * @param {string} message
-   */
-  log(...message) {
-    this.logger.info(...message)
-  }
-
-  /**
-   * @param {string} message
-   */
-  logWarning(...message) {
-    this.logger.warn(...message)
-  }
-
-  /**
-   * @param {string} message
-   */
-  logError(...message) {
-    this.logger.error(...message)
-  }
-
-  /**
-   * @param {string} message
-   */
-  logDebug(...message) {
-    this.logger.debug(...message)
-  }
-
 }
