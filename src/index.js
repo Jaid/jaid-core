@@ -487,6 +487,9 @@ export default class JaidCore {
         }
       }
       await this.callAndRemovePlugins("handleConfig", this.config)
+      this.doForManagedPluginsSync(plugin => {
+        plugin.config = this.config
+      })
       let Sequelize
       if (this.hasDatabase) {
         Sequelize = __non_webpack_require__("sequelize")

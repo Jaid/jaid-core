@@ -14,6 +14,11 @@ export default class JaidCorePlugin {
   core = null
 
   /**
+   * @type {Object}
+   */
+  config = null
+
+  /**
    * @type {import("jaid-logger").JaidLogger}
    */
   logger = null
