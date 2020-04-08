@@ -4,11 +4,6 @@
 export default class JaidCorePlugin {
 
   /**
-   * @type {boolean}
-   */
-  isManagedByJaidCore = true
-
-  /**
    * @type {import("./").default}
    */
   core = null

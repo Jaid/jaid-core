@@ -379,7 +379,7 @@ export default class JaidCore {
    */
   doForManagedPluginsSync(job) {
     for (const [pluginId, plugin] of Object.entries(this.plugins)) {
-      if (plugin.isManagedByJaidCore !== true) {
+      if (!(plugin instanceof JaidCorePlugin)) {
         continue
       }
       job(plugin, pluginId)
@@ -392,7 +392,7 @@ export default class JaidCore {
    */
   async doForManagedPlugins(job) {
     for (const [pluginId, plugin] of Object.entries(this.plugins)) {
-      if (plugin.isManagedByJaidCore !== true) {
+      if (!(plugin instanceof JaidCorePlugin)) {
         continue
       }
       await job(plugin, pluginId)
@@ -424,7 +424,7 @@ export default class JaidCore {
   formatPluginNameDetailed(pluginId, plugin) {
     let text = this.formatPluginName(pluginId)
     text += " "
-    if (plugin.isManagedByJaidCore === true) {
+    if (plugin instanceof JaidCorePlugin) {
       text += chalk.gray("(auto-managed)")
     } else {
       text += chalk.gray("(self-managed)")
