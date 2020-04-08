@@ -58,6 +58,14 @@ Name|Parameters|Return value
 `ready`|
 `handleLog`|`string level`, `string[] fragments`|
 
+### JaidCorePlugin
+
+Plugins can inherit from any superclass. When they inherit from JaidCorePlugin, some fields for the instance are automatically set:
+
+- `.core`
+- `.logger` (has `.info`, `.warn`, `.error`, `.debug`)
+- `.config` (Object of the loaded config)
+
 Plugin example:
 
 ```js
