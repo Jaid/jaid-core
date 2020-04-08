@@ -1,3 +1,5 @@
+### Plugins
+
 These optional plugin properties may be called by `jaid-core`:
 
 Name|Parameters|Return value
@@ -14,6 +16,14 @@ Name|Parameters|Return value
 `postInit`||`boolean shouldRemovePlugin`
 `ready`|
 `handleLog`|`string level`, `string[] fragments`|
+
+### JaidCorePlugin
+
+Plugins can inherit from any superclass. When they inherit from JaidCorePlugin, some fields for the instance are automatically set:
+
+- `.core`
+- `.logger` (has `.info`, `.warn`, `.error`, `.debug`)
+- `.config` (Object of the loaded config)
 
 Plugin example:
 

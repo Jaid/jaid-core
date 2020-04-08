@@ -36,7 +36,10 @@ npm install --save @jaid/jaid-core@^7.5.0
 
 
 
+
 ## Usage
+
+### Plugins
 
 These optional plugin properties may be called by `jaid-core`:
 
@@ -167,6 +170,9 @@ export default (Model, {models}) => {
 
 
 
+
+
+
 ## Development
 
 
@@ -189,4 +195,4 @@ npm run test
 
 ## License
 [MIT License](https://raw.githubusercontent.com/jaid/jaid-core/master/license.txt)  
-Copyright © 2020, Jaid <jaid.jsx@gmail.com> (github.com/jaid)
+Copyright © 2020, Jaid \<jaid.jsx@gmail.com> (https://github.com/jaid)
