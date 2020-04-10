@@ -1,3 +1,4 @@
+import cleanStack from "clean-stack"
 import delay from "delay"
 import {router} from "fast-koa-router"
 import moment from "moment"
@@ -20,7 +21,7 @@ const port = 15183
 it("should run", async () => {
   const core = new JaidCore({
     name: _PKG_TITLE,
-    folder: ["Jaid", _PKG_TITLE, "test", new Date().toISOString()],
+    folder: ["Jaid", _PKG_TITLE, "test", new Date().toISOString(), "1"],
     insecurePort: port,
     version: _PKG_VERSION,
     serverLogLevel: "info",
@@ -151,3 +152,32 @@ it("should run", async () => {
   const content = await readFileString(logFile)
   expect(content).toMatch("3 plugins: main (self-managed), removeMe (self-managed), socketServer (auto-managed)")
 }, ms`10 seconds`)
+
+it("should log error", async () => {
+  let catchedError = false
+  const core = new JaidCore({
+    name: _PKG_TITLE,
+    folder: ["Jaid", _PKG_TITLE, "test", new Date().toISOString(), "2"],
+    version: _PKG_VERSION,
+  })
+  const mainPluginClass = class {
+
+    async init() {
+      const emptyObject = {}
+      emptyObject.a.b = 0 // Should throw an Error
+    }
+
+  }
+  try {
+    await core.init({
+      main: mainPluginClass,
+    })
+  } catch (error) {
+    catchedError = error
+  }
+  expect(catchedError).toBeTruthy()
+  expect(catchedError.stack).toBeTruthy()
+  const errorMessagePattern = /Cannot set property 'b' of undefined/
+  expect(cleanStack(catchedError.stack, {pretty: true})).toMatch(errorMessagePattern)
+  const logFolder = path.join(core.appFolder, "log", "error")
+}, ms`5 seconds`)

@@ -22,7 +22,7 @@
   },
   "devDependencies": {
     "acorn": "^7.1.1",
-    "babel-jest": "^25.2.6",
+    "babel-jest": "^25.3.0",
     "babel-preset-jaid": "^7.3.5",
     "browserslist-config-jaid-node": "^2.2.2",
     "delay": "^4.3.0",
@@ -30,7 +30,7 @@
     "eslint-config-jaid": "^1.49.0",
     "fast-koa-router": "^1.2.0",
     "got": "^10.7.0",
-    "jest": "^25.2.7",
+    "jest": "^25.3.0",
     "koa": "^2.11.0",
     "koa-session": "^5.13.1",
     "koa-socket-2": "^1.2.0",
