@@ -553,7 +553,6 @@ export default class JaidCore {
          * @type {import("got")}
          */
         const got = __non_webpack_require__("got")
-        // TODO: Workaround based on: https://github.com/sindresorhus/got/issues/876#issuecomment-573348808
         this.got = got.extend({
           headers: {
             "User-Agent": `${this.camelName}/${this.options.version}`,
