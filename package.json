@@ -64,5 +64,23 @@
     "url": "https://github.com/jaid/jaid-core"
   },
   "homepage": "https://github.com/Jaid/jaid-core",
-  "keywords": []
+  "keywords": [
+    "core",
+    "framework",
+    "jaid-core",
+    "jaid-logger",
+    "javascript",
+    "javascript-framework",
+    "javascript-frameworks",
+    "js-framework",
+    "koa",
+    "lib",
+    "library",
+    "orm",
+    "personal",
+    "sequelize",
+    "util",
+    "utility",
+    "winston"
+  ]
 }
