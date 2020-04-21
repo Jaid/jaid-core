@@ -160,11 +160,12 @@ it("should log error", async () => {
     folder: ["Jaid", _PKG_TITLE, "test", new Date().toISOString(), "2"],
     version: _PKG_VERSION,
   })
+  const fieldName = "this_should_throw_an_error_so_do_not_worry_about_this_error_stack"
   const mainPluginClass = class {
 
     async init() {
       const emptyObject = {}
-      emptyObject.a.this_should_throw_an_error_so_do_not_worry_about_this_error_stack = 0 // Should throw an Error
+      emptyObject.a[fieldName] = 0 // Should throw an Error
     }
 
   }
@@ -177,7 +178,7 @@ it("should log error", async () => {
   }
   expect(catchedError).toBeTruthy()
   expect(catchedError.stack).toBeTruthy()
-  const errorMessagePattern = /Cannot set property 'b' of undefined/
-  expect(cleanStack(catchedError.stack, {pretty: true})).toMatch(errorMessagePattern)
+  const errorStackPattern = new RegExp(`Cannot set property '${fieldName}' of undefined`)
+  expect(cleanStack(catchedError.stack, {pretty: true})).toMatch(errorStackPattern)
   const logFolder = path.join(core.appFolder, "log", "error")
 }, ms`5 seconds`)

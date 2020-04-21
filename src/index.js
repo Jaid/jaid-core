@@ -6,8 +6,6 @@ import ensureArray from "ensure-array"
 import ensureEnd from "ensure-end"
 import essentialConfig from "essential-config"
 import hasContent, {isEmpty} from "has-content"
-import http from "http"
-import https from "https"
 import isClass from "is-class"
 import jaidLogger from "jaid-logger"
 import {isFunction, isString, uniq} from "lodash"
@@ -555,21 +553,7 @@ export default class JaidCore {
          */
         const got = __non_webpack_require__("got")
         // TODO: Workaround based on: https://github.com/sindresorhus/got/issues/876#issuecomment-573348808
-        const urlToOptions = __non_webpack_require__("got/dist/source/utils/url-to-options").default
         this.got = got.extend({
-          request: (url, options, callback) => {
-            if (url.protocol === "https:") {
-              return https.request({
-                ...options,
-                ...urlToOptions(url),
-              }, callback)
-            }
-
-            return http.request({
-              ...options,
-              ...urlToOptions(url),
-            }, callback)
-          },
           headers: {
             "User-Agent": `${this.camelName}/${this.options.version}`,
           },
