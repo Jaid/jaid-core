@@ -465,10 +465,10 @@ export default class JaidCore {
        * @type {import("essential-config").Result}
        */
       const configResult = essentialConfig(this.appPath, this.configSetup)
-      if (configResult.newKeys |> hasContent) {
+      if (hasContent(configResult.newKeys)) {
         this.logger.info("Added %s to config: %s", zahl(configResult.newKeys, "new entry"), configResult.newKeys.join(", "))
       }
-      if (configResult.deprecatedKeys |> hasContent) {
+      if (hasContent(configResult.deprecatedKeys)) {
         this.logger.warn("Config contains %s: %s", zahl(configResult.deprecatedKeys, "no longer needed entry"), configResult.deprecatedKeys.join(", "))
       }
       Object.assign(this.config, configResult.config)
@@ -611,7 +611,7 @@ export default class JaidCore {
           } catch (error) {
             this.logger.error("Could not create database %s: %s", this.database.options.database, error)
           }
-          if (this.databaseExtensions |> hasContent) {
+          if (hasContent(this.databaseExtensions)) {
             const query = this.databaseExtensions.map(extension => `CREATE EXTENSION IF NOT EXISTS ${extension};`).join(" ")
             await this.database.query(query)
             this.logger.info("Ensured existence of %s", zahl(this.databaseExtensions, "database extension"))
