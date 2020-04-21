@@ -5,7 +5,7 @@
 <a href="https://actions-badge.atrox.dev/jaid/jaid-core/goto"><img src="https://img.shields.io/endpoint.svg?style=flat-square&url=https%3A%2F%2Factions-badge.atrox.dev%2Fjaid%2Fjaid-core%2Fbadge" alt="Build status"/></a> <a href="https://github.com/jaid/jaid-core/commits"><img src="https://img.shields.io/github/commits-since/jaid/jaid-core/v8.0.3?style=flat-square&logo=github" alt="Commits since v8.0.3"/></a> <a href="https://github.com/jaid/jaid-core/commits"><img src="https://img.shields.io/github/last-commit/jaid/jaid-core?style=flat-square&logo=github" alt="Last commit"/></a> <a href="https://github.com/jaid/jaid-core/issues"><img src="https://img.shields.io/github/issues/jaid/jaid-core?style=flat-square&logo=github" alt="Issues"/></a>  
 <a href="https://npmjs.com/package/jaid-core"><img src="https://img.shields.io/npm/v/jaid-core?style=flat-square&logo=npm&label=latest%20version" alt="Latest version on npm"/></a> <a href="https://github.com/jaid/jaid-core/network/dependents"><img src="https://img.shields.io/librariesio/dependents/npm/jaid-core?style=flat-square&logo=npm" alt="Dependents"/></a> <a href="https://npmjs.com/package/jaid-core"><img src="https://img.shields.io/npm/dm/jaid-core?style=flat-square&logo=npm" alt="Downloads"/></a>
 
-**Simple, opinionated framework that combines koa, got, sequelize, essential-config and jaid-logger.**
+**Combines jaid-logger, essential-config, got, koa and sequelize.**
 
 
 
