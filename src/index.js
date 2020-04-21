@@ -2,6 +2,7 @@
 
 import camelCase from "camelcase"
 import chalk from "chalk"
+import cropString from "crop-string"
 import ensureArray from "ensure-array"
 import ensureEnd from "ensure-end"
 import essentialConfig from "essential-config"
@@ -560,11 +561,9 @@ export default class JaidCore {
           hooks: {
             afterResponse: [
               response => {
-                let displayedUrl = preventStart(response.requestUrl, "https://")
-                if (displayedUrl.length > 160) {
-                  displayedUrl = `${displayedUrl.slice(0, 159)}…`
-                }
-                this.logger.log(this.options.gotLogLevel, `[${response.statusCode} ${response.statusMessage} in ${readableMs(response.timings.phases.total)}] ▶︎ ${response.request.options.method} ${chalk.yellow(response.requestUrl)}`)
+                const displayUrl = preventStart(response.requestUrl, "https://")
+                const croppedUrl = cropString(displayUrl, 300)
+                this.logger.log(this.options.gotLogLevel, `[${response.statusCode} ${response.statusMessage} in ${readableMs(response.timings.phases.total)}] ▶︎ ${response.request.options.method} ${chalk.yellow(croppedUrl)}`)
                 return response
               },
             ],

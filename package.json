@@ -5,6 +5,7 @@
   "dependencies": {
     "camelcase": "^6.0.0",
     "chalk": "^4.0.0",
+    "crop-string": "^2.0.1",
     "ensure-array": "^1.0.0",
     "ensure-end": "^1.0.6",
     "essential-config": "^4.0.2",
