@@ -164,7 +164,7 @@ it("should log error", async () => {
 
     async init() {
       const emptyObject = {}
-      emptyObject.a.b = 0 // Should throw an Error
+      emptyObject.a.this_should_throw_an_error_so_do_not_worry_about_this_error_stack = 0 // Should throw an Error
     }
 
   }
