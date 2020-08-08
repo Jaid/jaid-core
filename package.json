@@ -1,6 +1,6 @@
 {
   "webpackConfigJaid": "nodeClass",
-  "version": "8.1.0",
+  "version": "8.2.0",
   "author": "Jaid <jaid.jsx@gmail.com> (https://github.com/Jaid)",
   "dependencies": {
     "camelcase": "^6.0.0",
