@@ -84,5 +84,6 @@
     "util",
     "utility",
     "winston"
-  ]
+  ],
+  "type": "module"
 }
