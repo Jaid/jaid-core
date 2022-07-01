@@ -1,5 +1,7 @@
 /** @module jaid-core */
 
+import path from "node:path"
+
 import camelCase from "camelcase"
 import chalk from "chalk"
 import cropString from "crop-string"
@@ -10,15 +12,13 @@ import hasContent, {isEmpty} from "has-content"
 import isClass from "is-class"
 import jaidLogger from "jaid-logger"
 import {isFunction, isString, uniq} from "lodash"
-import path from "path"
 import pify from "pify"
 import preventStart from "prevent-start"
+import readableMs from "readable-ms"
 import sortKeys from "sort-keys"
 import zahl from "zahl"
 
-import readableMs from "readable-ms"
-
-import JaidCorePlugin from "./JaidCorePlugin"
+import JaidCorePlugin from "./JaidCorePlugin.js"
 
 /**
  * @typedef {Object} Options
@@ -540,7 +540,7 @@ export default class JaidCore {
           }
           this.koa.keys = ensureArray(this.config.koaKeys)
           const sessionConfig = {
-            ...this.options.koaSession || {},
+            ...this.options.koaSession,
             signed: true,
           }
           const koaSession = __non_webpack_require__("koa-session")
