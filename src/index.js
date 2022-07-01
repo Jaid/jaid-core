@@ -16,7 +16,7 @@ import preventStart from "prevent-start"
 import sortKeys from "sort-keys"
 import zahl from "zahl"
 
-import readableMs from "lib/readableMs"
+import readableMs from "readable-ms"
 
 import JaidCorePlugin from "./JaidCorePlugin"
 
