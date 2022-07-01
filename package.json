@@ -13,7 +13,7 @@
     "humanize-duration": "^3.27.2",
     "is-class": "0.0.9",
     "jaid-logger": "^2.2.0",
-    "lodash": "^4.17.21",
+    "lodash-es": "^4.17.21",
     "pify": "^6.0.0",
     "prevent-start": "^1.0.5",
     "readable-ms": "^3.0.0",
