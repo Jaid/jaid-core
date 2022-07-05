@@ -16,7 +16,7 @@ import pify from "pify"
 import preventStart from "prevent-start"
 import readableMs from "readable-ms"
 import sortKeys from "sort-keys"
-import zahl from "zahl"
+import zahl from "./lib/esm/zahl.js"
 
 import JaidCorePlugin from "./JaidCorePlugin.js"
 
