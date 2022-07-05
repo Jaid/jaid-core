@@ -17,5 +17,6 @@
     "<rootDir>/dist",
     "<rootDir>/build"
   ],
-  "maxWorkers": 1
+  "maxWorkers": 1,
+  "runner": "jest-light-runner"
 }

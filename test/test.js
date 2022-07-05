@@ -1,29 +1,32 @@
+import path from "node:path"
+import {fileURLToPath, pathToFileURL} from "node:url"
+
 import cleanStack from "clean-stack"
 import delay from "delay"
 import {router} from "fast-koa-router"
 import moment from "moment"
-import ms from "ms.macro"
-import path from "path"
 import readFileString from "read-file-string"
 import Sequelize from "sequelize"
-import socketIo from "socket.io"
-import socketIoClient from "socket.io-client"
+import {Server} from "socket.io"
+import ioClient from "socket.io-client"
+import socketIoMsgpackParser from "socket.io-msgpack-parser"
 
-const indexModule = (process.env.MAIN ? path.resolve(process.env.MAIN) : path.join(__dirname, "..", "src")) |> require
+const dirName = path.dirname(fileURLToPath(import.meta.url))
+const indexPath = process.env.MAIN ?? path.join(dirName, "..", "src", "index.js")
 
 /**
  * @type { import("../src") }
  */
-const {default: JaidCore, JaidCorePlugin} = indexModule
+const {default: JaidCore, JaidCorePlugin} = await import(pathToFileURL(indexPath))
 
-const port = 15183
+const port = 15_183
 
 it("should run", async () => {
   const core = new JaidCore({
-    name: _PKG_TITLE,
-    folder: ["Jaid", _PKG_TITLE, "test", new Date().toISOString(), "1"],
+    name: "jaid-core",
+    folder: ["Jaid", "jaid-core", "test", new Date().toISOString(), "1"],
     insecurePort: port,
-    version: _PKG_VERSION,
+    version: "1.0.0",
     serverLogLevel: "info",
     databaseLogLevel: "info",
     gotLogLevel: "info",
@@ -78,7 +81,15 @@ it("should run", async () => {
   const socketPluginClass = class extends JaidCorePlugin {
 
     async init() {
-      this.socketServer = socketIo(core.insecureServer)
+      this.socketServer = new Server(core.insecureServer, {
+        parser: socketIoMsgpackParser,
+        serveClient: false,
+        cors: {
+          origin: "*",
+          methods: ["GET", "POST"],
+        },
+      })
+
       this.socketServer.on("connection", client => {
         receivedKey = client.handshake.query.key
         this.logger.info("Client has connected!")
@@ -137,12 +148,13 @@ it("should run", async () => {
     attributes: ["color"],
   })
   expect(aki.color).toBe("grey")
-  const socketClient = socketIoClient(`http://localhost:${port}`, {
+  const socketClient = ioClient(`http://localhost:${port}`, {
+    parser: socketIoMsgpackParser,
     query: {
       key: "mykey",
     },
   })
-  await delay(ms`1 second`)
+  await delay(1000)
   expect(socketClient.connected).toBe(true)
   expect(receivedKey).toBe("mykey")
   socketClient.close()
@@ -151,14 +163,14 @@ it("should run", async () => {
   const logFile = path.join(core.logger.logFolder, "debug", `${dateString}.txt`)
   const content = await readFileString(logFile)
   expect(content).toMatch("3 plugins: main (self-managed), removeMe (self-managed), socketServer (auto-managed)")
-}, ms`10 seconds`)
+}, 10 * 1000)
 
 it("should log error", async () => {
   let catchedError = false
   const core = new JaidCore({
-    name: _PKG_TITLE,
-    folder: ["Jaid", _PKG_TITLE, "test", new Date().toISOString(), "2"],
-    version: _PKG_VERSION,
+    name: "jaid-core",
+    folder: ["Jaid", "jaid-core", "test", new Date().toISOString(), "2"],
+    version: "1.0.0",
   })
   const fieldName = "this_should_throw_an_error_so_do_not_worry_about_this_error_stack"
   const mainPluginClass = class {
@@ -181,4 +193,4 @@ it("should log error", async () => {
   const errorStackPattern = new RegExp(`Cannot set property '${fieldName}' of undefined`)
   expect(cleanStack(catchedError.stack, {pretty: true})).toMatch(errorStackPattern)
   const logFolder = path.join(core.appFolder, "log", "error")
-}, ms`5 seconds`)
+}, 5000)
